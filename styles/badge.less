@@ -1,0 +1,31 @@
+@import "colors";
+@import "typography";
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  padding: 2px 4px;
+  border-width: 2px;
+  margin: 2px;
+
+  &.white-on-red {
+    border-color: @lightestRed;
+    background-color: @lightestRed;
+    color: @white;
+  }
+
+  &.white-on-orange {
+    border-color: @lightestOrange;
+    background-color: @lightestOrange;
+    color: @white;
+  }
+
+  &.white-on-green {
+    border-color: @lightestGreen;
+    background-color: @lightestGreen;
+    color: @white;
+  }
+}
+

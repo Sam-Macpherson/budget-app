@@ -1,5 +1,5 @@
 import React from "react";
-import { CATEGORY_NEED, TYPE_INCOME } from "../Constants";
+import { CATEGORY_NEED, CATEGORY_WANT, TYPE_INCOME } from "../Constants";
 import { Image, Text, View } from "react-native";
 import Badge from "./Badge";
 
@@ -8,9 +8,16 @@ import cardStyles from "../styles/card.less";
 import balanceSheet from "../styles/balanceSheet.less"
 
 const BalanceSheetItem = ({ type, category, amount, expenseName }) => {
-  const badgeStyle = category === CATEGORY_NEED ?
-    badge['badge.white-on-red'] :
-    badge['badge.white-on-orange'];
+  let badgeStyle;
+  if (category === CATEGORY_NEED) {
+    badgeStyle = badge['badge.white-on-blue'];
+  }
+  if (category === CATEGORY_WANT) {
+    badgeStyle = badge['badge.white-on-orange'];
+  }
+  if (type === TYPE_INCOME) {
+    badgeStyle = badge['badge.transparent'];
+  }
 
   return (
     <View style={[cardStyles.card, balanceSheet.balanceSheetItemContainer]}>
@@ -21,13 +28,12 @@ const BalanceSheetItem = ({ type, category, amount, expenseName }) => {
         />
         <Text>{expenseName}</Text>
       </View>
-      <View>
-        <Text style={{ textAlign: "right" }}>{amount}</Text>
-        {type !== TYPE_INCOME && <Badge
-          textStyle={{fontSize: 8}}
+      <View style={balanceSheet.balanceSheetValue}>
+        <Badge
+          textStyle={{ fontSize: 12 }}
           style={badgeStyle}
-          text={category === CATEGORY_NEED ? "need" : "want"}
-        />}
+          text={amount}
+        />
       </View>
     </View>
   );

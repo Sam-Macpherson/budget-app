@@ -13,15 +13,15 @@ const HeaderCard = ({ title, need, want, save, showLabels, showSave }) => {
       <View style={{ display: "flex", flexDirection: "row" }}>
         {showLabels && (
           <View style={{ flexDirection: "column" }}>
-            <Badge style={badgeStyles['badge.white-on-red']} text="need" />
+            <Badge style={badgeStyles['badge.white-on-blue']} text="need" />
             <Badge style={badgeStyles['badge.white-on-orange']} text="want" />
-            {showSave && <Badge style={badgeStyles['badge.white-on-green']} text="save"/>}
+            {showSave && <Badge style={badgeStyles['badge.transparent']} text="save"/>}
           </View>
         )}
         <View style={{ flexDirection: "column" }}>
-          <Badge style={badgeStyles['badge.white-on-red']} textStyle={typography.rightAlign} text={need} />
+          <Badge style={badgeStyles['badge.white-on-blue']} textStyle={typography.rightAlign} text={need} />
           <Badge style={badgeStyles['badge.white-on-orange']} textStyle={typography.rightAlign} text={want} />
-          {showSave && <Badge style={badgeStyles['badge.white-on-green']} textStyle={typography.rightAlign} text={save}/>}
+          {showSave && <Badge style={badgeStyles['badge.transparent']} textStyle={typography.rightAlign} text={save}/>}
         </View>
       </View>
     </View>

@@ -1,59 +1,43 @@
+import _ from "lodash";
 import React, { useState } from 'react';
 import ColorPalette from "./ColorPalette";
 
-import { FlatList, StyleSheet, View } from 'react-native';
+import {FlatList, StyleSheet, View} from 'react-native';
 
-import { FloatingAction } from "react-native-floating-action";
 import IncomeHeader from "./components/IncomeHeader";
-import BalanceSheetItem from "./components/BalanceSheetItem";
 import { items } from "./Constants";
 
 import balanceSheet from "./styles/balanceSheet.less";
 import cardStyles from "./styles/card.less";
-
-
-const actions = [
-  {
-    text: "Expense",
-    name: "bt_expense",
-    color: ColorPalette.ORANGE,
-    icon: require('./images/receipt-outline.png'),
-    position: 2,
-  },
-  {
-    text: "Income",
-    name: "bt_income",
-    color: ColorPalette.ORANGE,
-    icon: require("./images/piggy-bank-outline.png"),
-    position: 1,
-  }
-];
+import BalanceSheetDate from "./components/BalanceSheetDate";
+import Button from "./components/Button";
+import footerStyles from "./styles/footer.less";
+import moment from "moment";
 
 const App = () => {
-  const [addingItem, setAddingItem] = useState(false);
+  const [viewingMonth, setViewingMonth] = useState(moment());
 
-  const renderItem = ({ item }) => (
-      <BalanceSheetItem {...item} />
-  );
+  // Bucket the data up by date, and sort it in descending order.
+  const dates = _.sortBy(_.uniqBy(_.map(items, 'date'), d => d.getTime()), d => -d.getTime());
+
+  let itemsByDate = _.map(dates, d => ({
+    date: d,
+    items: _.filter(items, i => i.date.getTime() === d.getTime())
+  }));
 
   return (
     <View style={styles.container}>
       <IncomeHeader />
       <FlatList
         style={[cardStyles.card, balanceSheet.balanceSheet]}
-        data={items}
-        renderItem={renderItem}
+        data={itemsByDate}
+        renderItem={({ item }) => <BalanceSheetDate item={item} />}
       />
-      <FloatingAction
-        actions={actions}
-        color={addingItem ? ColorPalette.WHITE : ColorPalette.ORANGE}
-        iconColor={addingItem ? ColorPalette.DARKEST_GRAY : ColorPalette.WHITE}
-        onClose={() => setAddingItem(false)}
-        onOpen={() => setAddingItem(true)}
-        onPressItem={name => {
-          console.log("Selected button", name);
-        }}
-      />
+      <View style={footerStyles.footer}>
+        <Button style={{ fontSize: 18 }} text={viewingMonth.format('MMM YY')} />
+        <Button style={{ marginLeft: 4 }} image={require("./images/piggy-bank-outline.png")} />
+        <Button style={{ marginLeft: 4 }} image={require("./images/receipt-outline.png")} />
+      </View>
     </View>
   );
 };

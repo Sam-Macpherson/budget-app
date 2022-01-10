@@ -1,11 +1,11 @@
 // Constants for the app.
 
-const TYPE_INCOME = "TYPE_INCOME";
-const TYPE_EXPENSE = "TYPE_EXPENSE";
+const TYPE_INCOME = 'TYPE_INCOME';
+const TYPE_EXPENSE = 'TYPE_EXPENSE';
 
-const CATEGORY_NEED = "CATEGORY_NEED";
-const CATEGORY_WANT = "CATEGORY_WANT";
-const CATEGORY_SAVE = "CATEGORY_SAVE";
+const CATEGORY_NEED = 'CATEGORY_NEED';
+const CATEGORY_WANT = 'CATEGORY_WANT';
+const CATEGORY_SAVE = 'CATEGORY_SAVE';
 const EXPENSE_CATEGORIES = [CATEGORY_NEED, CATEGORY_WANT, CATEGORY_SAVE];
 
 // Some sample items for now.
@@ -13,35 +13,35 @@ const items = [
   {
     date: new Date(2021, 11, 1),
     type: TYPE_INCOME,
-    expenseName: "Dividends",
+    expenseName: 'Dividends',
     amount: 1233.45,
     category: CATEGORY_WANT,
   },
   {
     date: new Date(2021, 11, 1),
     type: TYPE_EXPENSE,
-    expenseName: "Toiletries",
+    expenseName: 'Toiletries',
     amount: 1233.45,
     category: CATEGORY_NEED,
   },
   {
     date: new Date(2021, 11, 1),
     type: TYPE_INCOME,
-    expenseName: "Found money",
+    expenseName: 'Found money',
     amount: 60.21,
     category: CATEGORY_WANT,
   },
   {
     date: new Date(2021, 0, 1),
     type: TYPE_EXPENSE,
-    expenseName: "Groceries",
+    expenseName: 'Groceries',
     amount: 123.45,
     category: CATEGORY_NEED,
   },
   {
     date: new Date(2021, 11, 1),
     type: TYPE_EXPENSE,
-    expenseName: "Groceries",
+    expenseName: 'Groceries',
     amount: 123.45,
     category: CATEGORY_NEED,
   },
@@ -55,56 +55,56 @@ const items = [
   {
     date: new Date(2021, 11, 3),
     type: TYPE_INCOME,
-    expenseName: "Salary",
+    expenseName: 'Salary',
     amount: 1213.45,
     category: CATEGORY_WANT,
   },
   {
     date: new Date(2021, 11, 3),
     type: TYPE_EXPENSE,
-    expenseName: "Electricity bill",
+    expenseName: 'Electricity bill',
     amount: 123.45,
     category: CATEGORY_NEED,
   },
   {
     date: new Date(2021, 11, 3),
     type: TYPE_EXPENSE,
-    expenseName: "1 oz cappuccino",
+    expenseName: '1 oz cappuccino',
     amount: 5.07,
     category: CATEGORY_WANT,
   },
   {
     date: new Date(2021, 11, 3),
     type: TYPE_EXPENSE,
-    expenseName: "coffee beans",
+    expenseName: 'coffee beans',
     amount: 123.45,
     category: CATEGORY_WANT,
   },
   {
     date: new Date(2021, 9, 3),
     type: TYPE_INCOME,
-    expenseName: "Salary",
+    expenseName: 'Salary',
     amount: 1213.45,
     category: CATEGORY_WANT,
   },
   {
     date: new Date(2021, 9, 3),
     type: TYPE_EXPENSE,
-    expenseName: "Electricity bill",
+    expenseName: 'Electricity bill',
     amount: 123.45,
     category: CATEGORY_NEED,
   },
   {
     date: new Date(2021, 9, 3),
     type: TYPE_EXPENSE,
-    expenseName: "1 oz cappuccino",
+    expenseName: '1 oz cappuccino',
     amount: 5.07,
     category: CATEGORY_WANT,
   },
   {
     date: new Date(2021, 9, 3),
     type: TYPE_EXPENSE,
-    expenseName: "coffee beans",
+    expenseName: 'coffee beans',
     amount: 123.45,
     category: CATEGORY_WANT,
   },
@@ -214,7 +214,6 @@ const items = [
   //   category: CATEGORY_NEED,
   // },
 ];
-
 
 export {
   items,

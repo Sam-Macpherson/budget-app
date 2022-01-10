@@ -26,3 +26,53 @@
 @gray: #3f3f3f;
 @darkGray: #313131;
 @darkestGray: #1e1e1e;
+
+.red {
+  border-color: @lightestRed;
+  color: @lightestRed;
+}
+
+.blue {
+  border-color: @lightestBlue;
+  color: @lightestBlue;
+}
+
+.orange {
+  border-color: @lightestOrange;
+  color: @lightestOrange;
+}
+
+.green {
+  border-color: @lightestGreen;
+  color: @lightestGreen;
+}
+
+.white-on-red {
+  .red;
+  background: @lightestRed;
+  color: @white;
+}
+
+.white-on-blue {
+  .blue;
+  background-color: @lightestBlue;
+  color: @white;
+}
+
+.white-on-orange {
+  .orange;
+  background-color: @lightestOrange;
+  color: @white;
+}
+
+&.white-on-green {
+  .green;
+  background-color: @lightestGreen;
+  color: @white;
+}
+
+&.transparent {
+  border-color: @transparent;
+  background-color: @transparent;
+  color: @white;
+}

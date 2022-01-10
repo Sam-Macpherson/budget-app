@@ -4,6 +4,7 @@
 .badge {
   display: flex;
   align-items: center;
+  font-weight: bold;
   justify-content: center;
   border-radius: 4px;
   padding: 2px 4px;
@@ -11,27 +12,31 @@
   margin: 2px;
 
   &.transparent {
-    border-color: @transparent;
-    background-color: @transparent;
-    color: @white;
+    .transparent;
+  }
+
+  &.white-on-red {
+    .white-on-red;
   }
 
   &.white-on-blue {
-    border-color: @lightestBlue;
-    background-color: @lightestBlue;
-    color: @white;
+    .white-on-blue;
   }
 
   &.white-on-orange {
-    border-color: @lightestOrange;
-    background-color: @lightestOrange;
-    color: @white;
+    .white-on-orange;
   }
 
   &.white-on-green {
-    border-color: @lightestGreen;
-    background-color: @lightestGreen;
-    color: @white;
+    .white-on-green;
+  }
+
+  &.orange {
+    .orange;
+  }
+
+  &.green {
+    .green;
   }
 }
 

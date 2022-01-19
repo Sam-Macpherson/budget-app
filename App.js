@@ -1,48 +1,51 @@
 import _ from 'lodash';
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import ColorPalette from './ColorPalette';
 
 import {FlatList, StyleSheet, Text, View} from 'react-native';
 
 import IncomeHeader from './components/IncomeHeader';
-import {items, TYPE_EXPENSE} from './Constants';
+import {
+  CATEGORY_NEED,
+  january_2022,
+  january_2021,
+  december_2021,
+  october_2021,
+  TYPE_EXPENSE,
+} from './Constants';
 
 import balanceSheet from './styles/balanceSheet.less';
 import typography from './styles/typography.less';
-import cardStyles from './styles/card.less';
 import BalanceSheetDate from './components/BalanceSheetDate';
 import Button from './components/Button';
 import footerStyles from './styles/footer.less';
-import moment from 'moment';
 import Modal from 'react-native-modalbox';
 import ExpenseModal from './components/ExpenseModal';
+import storage from './storage/storage';
+import {formatDateMonth} from './utils/dates';
+import expensesReducer from './storage/reducers/expensesReducer';
 
 const App = () => {
   const addExpenseModal = useRef(null);
-  const [viewingMonth, setViewingMonth] = useState(moment());
-  const [sheetItems, setSheetItems] = useState(items);
+  const [viewingMonth, setViewingMonth] = useState(new Date());
+  const [sheetItems, setSheetItems] = useState({});
 
-  // Bucket the data up by date, and sort it in descending order.
-  const dates = _.sortBy(
-    _.uniqBy(_.map(sheetItems, 'date'), d => d.getTime()),
-    d => -d.getTime(),
-  );
-
-  let itemsByDate = _.map(dates, d => ({
-    date: d,
-    items: _.filter(sheetItems, i => i.date.getDate() === d.getDate()),
-  }));
+  useEffect(() => {
+    storage.getObject(formatDateMonth(viewingMonth), expensesReducer).then(dataForMonth => {
+      setSheetItems(dataForMonth);
+    });
+  }, [viewingMonth]);
 
   return (
     <View style={styles.container}>
       <IncomeHeader />
       <FlatList
-        style={[cardStyles.card, balanceSheet.balanceSheet]}
-        data={itemsByDate}
+        style={[balanceSheet.balanceSheet]}
+        data={sheetItems}
         renderItem={({item}) => <BalanceSheetDate item={item} />}
       />
       <View style={footerStyles.footer}>
-        <Button style={typography.largest} text={viewingMonth.format('MMM YY')} />
+        <Button style={typography.largest} text={formatDateMonth(viewingMonth)} />
         <Button style={{marginLeft: 4}} image={require('./images/piggy-bank-outline.png')} />
         <Button
           onPress={() => addExpenseModal.current?.open()}

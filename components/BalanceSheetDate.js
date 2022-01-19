@@ -9,6 +9,7 @@ import Badge from './Badge';
 import badge from '../styles/badge.less';
 import BalanceSheetItem from './BalanceSheetItem';
 import React from 'react';
+import {formatDateDayMedium} from '../utils/dates';
 
 const BalanceSheetDate = ({item}) => {
   const want = roundToTwoDecimals(
@@ -37,7 +38,7 @@ const BalanceSheetDate = ({item}) => {
   return (
     <View style={[cardStyles.card, balanceSheet.balanceSheetDate]}>
       <View style={balanceSheet['balanceSheetDate.header']}>
-        <Text style={typography.medium}>{item.date.toDateString()}</Text>
+        <Text style={typography.medium}>{formatDateDayMedium(item.date)}</Text>
         <View style={balanceSheet['balanceSheetDate.header.totals']}>
           <Badge textStyle={typography.small} style={badge['badge.white-on-green']} text={need} />
           <Badge textStyle={typography.small} style={badge['badge.white-on-orange']} text={want} />

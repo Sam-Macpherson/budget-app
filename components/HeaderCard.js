@@ -8,7 +8,7 @@ import ColorPalette from '../ColorPalette';
 
 const HeaderCard = ({title, need, want, save, showLabels, showSave}) => {
   return (
-    <View style={[cardStyles.card, {backgroundColor: ColorPalette.DARK_GRAY}]}>
+    <View style={[cardStyles.card, {backgroundColor: ColorPalette.DARK_GRAY, margin: 2}]}>
       <Text style={typography.italics}>{title}</Text>
       <View style={{display: 'flex', flexDirection: 'row'}}>
         {showLabels && (

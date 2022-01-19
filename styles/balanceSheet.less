@@ -4,14 +4,12 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  background-color: @darkGray;
   margin-bottom: 8px;
 }
 
 .balanceSheetDate {
   width: 100%;
   display: flex;
-  background-color: @darkestGray;
 
   &.header {
     margin-bottom: 8px;
@@ -45,17 +43,20 @@
 
   &.white-on-orange {
     .orange;
+    background-color: @lightestOrange;
   }
 
   &.white-on-green {
     .green;
+    background-color: @lightestGreen;
   }
 }
 
 .balanceSheetItemContainer {
   display: flex;
   flex-direction: row;
-  background-color: @darkGray;
+  border-bottom-color: @darkGray;
+  border-bottom-width: 1px;
   align-items: center;
   justify-content: space-between;
 }

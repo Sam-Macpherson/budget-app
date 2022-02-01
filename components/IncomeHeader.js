@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import React from 'react';
-import {CATEGORY_NEED, CATEGORY_WANT, items, TYPE_EXPENSE, TYPE_INCOME} from '../Constants';
+import {CATEGORY_NEED, CATEGORY_WANT, TYPE_EXPENSE, TYPE_INCOME} from '../Constants';
 import {View} from 'react-native';
 import roundToTwoDecimals from '../utils/roundToTwoDecimals';
 import HeaderCard from './HeaderCard';
 import style from '../styles/incomeHeader.less';
 
-const IncomeHeader = () => {
+const IncomeHeader = ({items}) => {
   const totalIncome = _.sum(_.map(_.filter(items, {type: TYPE_INCOME}), item => item.amount));
   const [need, want, save] = [
     roundToTwoDecimals(totalIncome * 0.5),

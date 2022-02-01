@@ -45,7 +45,7 @@ const BalanceSheetDate = ({item}) => {
         </View>
       </View>
       {_.map(item.items, i => (
-        <BalanceSheetItem key={`${i.date}_${i.expenseName}`} {...i} />
+        <BalanceSheetItem key={`${i.date}_${i.description}`} {...i} />
       ))}
     </View>
   );

@@ -8,7 +8,7 @@ import cardStyles from '../styles/card.less';
 import balanceSheet from '../styles/balanceSheet.less';
 import typography from '../styles/typography.less';
 
-const BalanceSheetItem = ({type, category, amount, expenseName}) => {
+const BalanceSheetItem = ({type, category, amount, description}) => {
   let iconStyle;
   if (category === CATEGORY_WANT) {
     iconStyle = balanceSheet['balanceSheetItemIcon.white-on-orange'];
@@ -33,7 +33,7 @@ const BalanceSheetItem = ({type, category, amount, expenseName}) => {
             }
           />
         </View>
-        <Text>{expenseName}</Text>
+        <Text>{description}</Text>
       </View>
       <View style={balanceSheet.balanceSheetValue}>
         <Badge textStyle={typography.medium} style={badge['badge.transparent']} text={amount} />

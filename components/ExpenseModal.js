@@ -8,8 +8,8 @@ import {CATEGORY_NEED, CATEGORY_WANT} from '../Constants';
 
 const ExpenseModal = ({onSubmit}) => {
   const [category, setCategory] = useState(CATEGORY_NEED);
-  const [amount, setExpenseAmount] = useState(0);
-  const [expenseName, setExpenseName] = useState('');
+  const [amount, setAmount] = useState(0);
+  const [description, setDescription] = useState('');
   const [valueTextInput, setValueTextInput] = useState(null);
   const needBadgeStyle =
     category === CATEGORY_NEED ? badge['badge.white-on-green'] : badge['badge.green'];
@@ -36,15 +36,15 @@ const ExpenseModal = ({onSubmit}) => {
           <TextInput
             onSubmitEditing={() => valueTextInput.focus()}
             style={[expenseModal.expenseModalInput, {width: 135}]}
-            onChangeText={setExpenseName}
+            onChangeText={setDescription}
             placeholder="Memo"
           />
         </View>
         <TextInput
           ref={input => setValueTextInput(input)}
-          onSubmitEditing={() => onSubmit({category, amount, expenseName})}
+          onSubmitEditing={() => onSubmit({category, amount, description})}
           style={[expenseModal.expenseModalInput, typography.rightAlign, {width: 80}]}
-          onChangeText={value => setExpenseAmount(Number(value))}
+          onChangeText={value => setAmount(Number(value))}
           placeholder="0.00"
           keyboardType="numeric"
         />

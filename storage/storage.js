@@ -1,5 +1,11 @@
+import _ from 'lodash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {formatDateDayMedium, formatDateMonth} from '../utils/dates';
+import expensesReducer from './reducers/expensesReducer';
 
+/**
+ * Interface to the bare-bones AsyncStorage store.
+ */
 class Storage {
   async clear() {
     return AsyncStorage.clear();
@@ -37,10 +43,8 @@ class Storage {
         return null;
       }
       let parsedValue = JSON.parse(value);
-      console.log('parsed value before reducer', parsedValue);
       if (reducer !== undefined) {
         parsedValue = reducer(parsedValue);
-        console.log('parsed value after reducer', parsedValue);
       }
       return parsedValue;
     } catch (e) {
@@ -48,6 +52,47 @@ class Storage {
     }
   }
 }
+
 const store = new Storage();
 
-export default store;
+/**
+ * Implementation of the interactions specific to this application.
+ */
+class StorageInterface {
+  /**
+   * Adds an expense to the list of items for the same date that exist in the
+   * store. Maintains descending temporal ordering on the items for a given date.
+   * @param entry {object} - Details of the expense to save.
+   * @returns {Promise<void>}
+   */
+  async addEntry(entry) {
+    const date = entry.date; // native JS date.
+    // Convert native date to storage key for the month.
+    const monthKey = formatDateMonth(date);
+    const dateKey = formatDateDayMedium(date);
+    // Get the data that exists for this month.
+    const monthData = await store.getObject(monthKey);
+    let newMonthData = {};
+    if (_.isNull(monthData)) {
+      newMonthData[dateKey] = [entry];
+    } else {
+      const existingDateEntries = monthData[dateKey] || [];
+      newMonthData[dateKey] = [entry, ...existingDateEntries];
+    }
+    return store.setObject(monthKey, newMonthData);
+  }
+
+  /**
+   * Returns the expense/income entries for the month represented by the given date.
+   * @param date {Date} - a native javascript date to pull the entries for.
+   * @returns {Promise<void>}
+   */
+  async getEntriesForMonth(date) {
+    const monthKey = formatDateMonth(date);
+    return store.getObject(monthKey, expensesReducer);
+  }
+}
+
+const si = new StorageInterface();
+// Singleton interface.
+export default si;

@@ -2,15 +2,15 @@ import _ from 'lodash';
 
 const reducer = data => {
   // Bucket the data up by day of the month and sort it in descending order.
-  const dates = _.sortBy(
-    _.uniqBy(_.map(data, 'date'), d => new Date(d).getDate()),
-    d => -new Date(d).getDate(),
+  const sortedDates = _.sortBy(
+    _.map(_.keys(data), key => [new Date(key), key]),
+    value => -value[0].getDate(),
   );
-  const itemsByDate = _.map(dates, d => ({
-    date: d,
-    items: _.filter(data, item => new Date(item.date).getDate() === new Date(d).getDate()),
-  }));
-  return itemsByDate;
+  let output = [];
+  _.forEach(sortedDates, date => {
+    output = [...output, {date: date[0], items: data[date[1]]}];
+  });
+  return output;
 };
 
 export default reducer;

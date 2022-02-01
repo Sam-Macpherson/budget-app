@@ -1,18 +1,11 @@
 import _ from 'lodash';
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect, useMemo} from 'react';
 import ColorPalette from './ColorPalette';
 
-import {FlatList, StyleSheet, Text, View} from 'react-native';
+import {FlatList, StyleSheet, View} from 'react-native';
 
 import IncomeHeader from './components/IncomeHeader';
-import {
-  CATEGORY_NEED,
-  january_2022,
-  january_2021,
-  december_2021,
-  october_2021,
-  TYPE_EXPENSE,
-} from './Constants';
+import {TYPE_EXPENSE} from './Constants';
 
 import balanceSheet from './styles/balanceSheet.less';
 import typography from './styles/typography.less';
@@ -21,24 +14,23 @@ import Button from './components/Button';
 import footerStyles from './styles/footer.less';
 import Modal from 'react-native-modalbox';
 import ExpenseModal from './components/ExpenseModal';
-import storage from './storage/storage';
+import si from './storage/storage';
 import {formatDateMonth} from './utils/dates';
-import expensesReducer from './storage/reducers/expensesReducer';
 
 const App = () => {
   const addExpenseModal = useRef(null);
   const [viewingMonth, setViewingMonth] = useState(new Date());
   const [sheetItems, setSheetItems] = useState({});
+  // Flat list of all items for the header.
+  const allItems = useMemo(() => _.flatten(_.map(sheetItems, 'items')), [sheetItems]);
 
   useEffect(() => {
-    storage.getObject(formatDateMonth(viewingMonth), expensesReducer).then(dataForMonth => {
-      setSheetItems(dataForMonth);
-    });
+    si.getEntriesForMonth(viewingMonth).then(entries => setSheetItems(entries));
   }, [viewingMonth]);
 
   return (
     <View style={styles.container}>
-      <IncomeHeader />
+      <IncomeHeader items={allItems} />
       <FlatList
         style={[balanceSheet.balanceSheet]}
         data={sheetItems}
@@ -59,14 +51,10 @@ const App = () => {
         position={'bottom'}>
         <ExpenseModal
           onSubmit={data => {
-            setSheetItems([
-              ...sheetItems,
-              {
-                date: new Date(),
-                type: TYPE_EXPENSE,
-                ...data,
-              },
-            ]);
+            si.addEntry({date: new Date(), type: TYPE_EXPENSE, ...data}).then(() =>
+              // Setting the viewing month (despite no-op) forces a rerender & fetch.
+              setViewingMonth(new Date(viewingMonth)),
+            );
             addExpenseModal.current?.close();
           }}
         />

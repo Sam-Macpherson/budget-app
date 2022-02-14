@@ -60,7 +60,14 @@ const store = new Storage();
  */
 class StorageInterface {
   /**
-   * Adds an expense to the list of items for the same date that exist in the
+   * Empties the whole store.
+   * @returns {Promise<*>}
+   */
+  async clearAll() {
+    return store.clear();
+  }
+  /**
+   * Adds an expense/income to the list of items for the same date that exist in the
    * store. Maintains descending temporal ordering on the items for a given date.
    * @param entry {object} - Details of the expense to save.
    * @returns {Promise<void>}
@@ -77,9 +84,48 @@ class StorageInterface {
       newMonthData[dateKey] = [entry];
     } else {
       const existingDateEntries = monthData[dateKey] || [];
-      newMonthData[dateKey] = [entry, ...existingDateEntries];
+      const insertionIndex = _.sortedIndexBy(existingDateEntries, entry, 'date');
+      existingDateEntries.splice(insertionIndex, 0, entry);
+      newMonthData[dateKey] = existingDateEntries;
     }
     return store.setObject(monthKey, newMonthData);
+  }
+
+  /**
+   * Given an expense/income, remove that entry from the store.
+   *
+   * @param entry
+   * @returns {Promise<void>}
+   */
+  async removeEntry(entry) {
+    if (_.isUndefined(entry)) {
+      return;
+    }
+    const date = entry.date; // native JS date.
+    // Convert native date to storage key for the month.
+    const monthKey = formatDateMonth(date);
+    const dateKey = formatDateDayMedium(date);
+    // Get the data that exists for this month.
+    const monthData = await store.getObject(monthKey);
+    let newMonthData = {};
+    const existingDateEntries = monthData[dateKey] || [];
+    _.remove(existingDateEntries, e => e.date === date);
+    newMonthData[dateKey] = existingDateEntries;
+    return store.setObject(monthKey, newMonthData);
+  }
+
+  /**
+   * Given an expense/income, store it in the store and remove the previous version. Identifies entries
+   * uniquely based on their native JS date field, because I find it unlikely two entries
+   * can have the same millisecond precision creation date.
+   *
+   * @param entry
+   * @returns {Promise<void>}
+   */
+  async editEntry(entry) {
+    await this.removeEntry(entry);
+    // Add the updated entry to the store.
+    return this.addEntry(entry);
   }
 
   /**

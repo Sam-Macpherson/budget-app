@@ -1,4 +1,5 @@
 import {Text, TextInput, View} from 'react-native';
+import _ from 'lodash';
 import React, {useState} from 'react';
 import expenseModal from '../styles/expenseModal.less';
 import typography from '../styles/typography.less';
@@ -6,10 +7,10 @@ import Badge from './Badge';
 import badge from '../styles/badge.less';
 import {CATEGORY_NEED, CATEGORY_WANT} from '../Constants';
 
-const ExpenseModal = ({onSubmit}) => {
-  const [category, setCategory] = useState(CATEGORY_NEED);
-  const [amount, setAmount] = useState(0);
-  const [description, setDescription] = useState('');
+const ExpenseModal = ({onSubmit, entry}) => {
+  const [category, setCategory] = useState(_.isNull(entry) ? CATEGORY_WANT : entry.category);
+  const [amount, setAmount] = useState(_.isNull(entry) ? 0 : entry.amount);
+  const [description, setDescription] = useState(_.isNull(entry) ? '' : entry.description);
   const [valueTextInput, setValueTextInput] = useState(null);
   const needBadgeStyle =
     category === CATEGORY_NEED ? badge['badge.white-on-green'] : badge['badge.green'];
@@ -33,21 +34,25 @@ const ExpenseModal = ({onSubmit}) => {
             textStyle={typography.largest}
             style={wantBadgeStyle}
           />
+        </View>
+        <View style={expenseModal.expenseDetails}>
           <TextInput
             onSubmitEditing={() => valueTextInput.focus()}
-            style={[expenseModal.expenseModalInput, {width: 135}]}
+            defaultValue={_.isNull(entry) ? '' : entry.description}
+            style={[expenseModal.expenseModalInput]}
             onChangeText={setDescription}
             placeholder="Memo"
           />
+          <TextInput
+            ref={input => setValueTextInput(input)}
+            onSubmitEditing={() => onSubmit({category, amount, description})}
+            defaultValue={_.isNull(entry) ? '' : String(entry.amount)}
+            style={[expenseModal.expenseModalInput, typography.rightAlign]}
+            onChangeText={value => setAmount(Number(value))}
+            placeholder="0.00"
+            keyboardType="numeric"
+          />
         </View>
-        <TextInput
-          ref={input => setValueTextInput(input)}
-          onSubmitEditing={() => onSubmit({category, amount, description})}
-          style={[expenseModal.expenseModalInput, typography.rightAlign, {width: 80}]}
-          onChangeText={value => setAmount(Number(value))}
-          placeholder="0.00"
-          keyboardType="numeric"
-        />
       </View>
     </View>
   );

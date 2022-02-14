@@ -1,4 +1,4 @@
-import {Text, TextInput, View} from 'react-native';
+import {Image, Text, TextInput, View} from 'react-native';
 import _ from 'lodash';
 import React, {useState} from 'react';
 import expenseModal from '../styles/expenseModal.less';
@@ -6,8 +6,9 @@ import typography from '../styles/typography.less';
 import Badge from './Badge';
 import badge from '../styles/badge.less';
 import {CATEGORY_NEED, CATEGORY_WANT} from '../Constants';
+import Button from './Button';
 
-const ExpenseModal = ({onSubmit, entry}) => {
+const ExpenseModal = ({onSubmit, entry, deleteEntry}) => {
   const [category, setCategory] = useState(_.isNull(entry) ? CATEGORY_WANT : entry.category);
   const [amount, setAmount] = useState(_.isNull(entry) ? 0 : entry.amount);
   const [description, setDescription] = useState(_.isNull(entry) ? '' : entry.description);
@@ -19,7 +20,18 @@ const ExpenseModal = ({onSubmit, entry}) => {
 
   return (
     <View style={expenseModal.expenseModalContainer}>
-      <Text style={[typography.largest, typography.italics]}>add expense</Text>
+      <View style={expenseModal.expenseModalHeader}>
+        <Text style={[typography.largest, typography.italics]}>
+          {_.isNull(entry) ? 'add' : 'edit'} expense
+        </Text>
+        {_.isNull(entry) || (
+          <Button
+            onPress={() => deleteEntry(entry)}
+            style={{marginLeft: 4}}
+            image={require('../images/trash-can.png')}
+          />
+        )}
+      </View>
       <View style={expenseModal.expenseTypeAndValueContainer}>
         <View style={expenseModal.expenseType}>
           <Badge

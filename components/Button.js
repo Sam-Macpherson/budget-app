@@ -9,7 +9,7 @@ const Button = ({image, text, ...props}) => {
       onPress={props.onPress}
       style={({pressed}) => [
         {
-          backgroundColor: pressed ? ColorPalette.DARK_GRAY : ColorPalette.LIGHT_GRAY,
+          backgroundColor: pressed ? ColorPalette.GRAY : ColorPalette.LIGHT_GRAY,
         },
         styles.button,
         props.style,

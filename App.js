@@ -37,20 +37,23 @@ const App = () => {
     });
   }, [viewingMonth]);
 
+  const resetViewingMonth = useCallback(
+    () => setViewingMonth(new Date(viewingMonth)),
+    [viewingMonth],
+  );
+
   const submitEntry = useCallback(
     data => {
       if (_.isNull(editingEntry)) {
         si.addEntry({date: new Date(), ...data}).then(() =>
           // Setting the viewing month (despite no-op) forces a rerender & fetch.
-          setViewingMonth(new Date(viewingMonth)),
+          resetViewingMonth(),
         );
       } else {
-        si.editEntry({date: editingEntry.date, ...data}).then(() =>
-          setViewingMonth(new Date(viewingMonth)),
-        );
+        si.editEntry({date: editingEntry.date, ...data}).then(() => resetViewingMonth());
       }
     },
-    [viewingMonth, editingEntry],
+    [resetViewingMonth, editingEntry],
   );
 
   const onDateChanged = useCallback(
@@ -114,9 +117,16 @@ const App = () => {
       <Modal
         ref={addExpenseModal}
         style={{height: 150, borderRadius: 8, backgroundColor: ColorPalette.DARK_GRAY}}
-        position={'bottom'}>
+        position={'bottom'}
+        onClosed={_.partial(setEditingEntry, null)}>
         <ExpenseModal
           entry={editingEntry}
+          deleteEntry={async entry => {
+            await si.removeEntry(entry);
+            resetViewingMonth();
+            setEditingEntry(null);
+            addExpenseModal.current?.close();
+          }}
           onSubmit={data => {
             submitEntry({type: TYPE_EXPENSE, ...data});
             setEditingEntry(null);
@@ -127,9 +137,16 @@ const App = () => {
       <Modal
         ref={addIncomeModal}
         style={{height: 110, borderRadius: 8, backgroundColor: ColorPalette.DARK_GRAY}}
-        position={'bottom'}>
+        position={'bottom'}
+        onClosed={_.partial(setEditingEntry, null)}>
         <IncomeModal
           entry={editingEntry}
+          deleteEntry={async entry => {
+            await si.removeEntry(entry);
+            resetViewingMonth();
+            setEditingEntry(null);
+            addIncomeModal.current?.close();
+          }}
           onSubmit={data => {
             submitEntry({type: TYPE_INCOME, ...data});
             setEditingEntry(null);

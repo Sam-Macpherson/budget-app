@@ -83,10 +83,10 @@ class StorageInterface {
     if (_.isNull(monthData)) {
       newMonthData[dateKey] = [entry];
     } else {
-      const existingDateEntries = monthData[dateKey] || [];
+      const existingDateEntries = _.orderBy(monthData[dateKey] || [], 'date');
       const insertionIndex = _.sortedIndexBy(existingDateEntries, entry, 'date');
       existingDateEntries.splice(insertionIndex, 0, entry);
-      newMonthData[dateKey] = existingDateEntries;
+      newMonthData[dateKey] = _.orderBy(existingDateEntries, 'date', ['desc']);
     }
     return store.setObject(monthKey, newMonthData);
   }

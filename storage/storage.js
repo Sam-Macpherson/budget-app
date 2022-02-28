@@ -79,7 +79,7 @@ class StorageInterface {
     const dateKey = formatDateDayMedium(date);
     // Get the data that exists for this month.
     const monthData = await store.getObject(monthKey);
-    let newMonthData = {};
+    let newMonthData = _.cloneDeep(monthData) || {};
     if (_.isNull(monthData)) {
       newMonthData[dateKey] = [entry];
     } else {
@@ -107,7 +107,7 @@ class StorageInterface {
     const dateKey = formatDateDayMedium(date);
     // Get the data that exists for this month.
     const monthData = await store.getObject(monthKey);
-    let newMonthData = {};
+    let newMonthData = _.cloneDeep(monthData) || {};
     const existingDateEntries = monthData[dateKey] || [];
     _.remove(existingDateEntries, e => e.date === date);
     newMonthData[dateKey] = existingDateEntries;
@@ -130,6 +130,7 @@ class StorageInterface {
 
   /**
    * Returns the expense/income entries for the month represented by the given date.
+   *
    * @param date {Date} - a native javascript date to pull the entries for.
    * @returns {Promise<void>}
    */

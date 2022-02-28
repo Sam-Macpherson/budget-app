@@ -72,19 +72,21 @@ const App = () => {
       <FlatList
         style={[balanceSheet.balanceSheet]}
         data={sheetItems}
-        renderItem={({item}) => (
-          <BalanceSheetDate
-            onPressItem={i => {
-              setEditingEntry(i);
-              if (i.type === TYPE_INCOME) {
-                addIncomeModal.current?.open();
-              } else {
-                addExpenseModal.current?.open();
-              }
-            }}
-            item={item}
-          />
-        )}
+        renderItem={({item}) =>
+          !_.isEmpty(item.items) ? (
+            <BalanceSheetDate
+              onPressItem={i => {
+                setEditingEntry(i);
+                if (i.type === TYPE_INCOME) {
+                  addIncomeModal.current?.open();
+                } else {
+                  addExpenseModal.current?.open();
+                }
+              }}
+              item={item}
+            />
+          ) : null
+        }
       />
       <View style={footerStyles.footer}>
         <Button

@@ -45,6 +45,22 @@ const ICONS = {
     <Path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M4.5 15v3a2.5 2.5 0 002.5 2.5h10a2.5 2.5 0 002.5-2.5v-3" />
   ),
   check: <Path d="M5 12.5l4.5 4.5L19 7.5" />,
+  menu: <Path d="M4 7h16M4 12h16M4 17h16" />,
+  wallet: (
+    <>
+      <Path d="M5 8V7.5A2.5 2.5 0 017.5 5H17v3" />
+      <Rect x="3.5" y="8" width="17" height="11.5" rx="2.5" />
+      <Path d="M16 13.75h.01" strokeWidth={2.6} />
+    </>
+  ),
+  repeat: (
+    <>
+      <Path d="M17 3.5l3 3-3 3" />
+      <Path d="M4 11.5v-1.5a3.5 3.5 0 013.5-3.5H20" />
+      <Path d="M7 20.5l-3-3 3-3" />
+      <Path d="M20 12.5V14a3.5 3.5 0 01-3.5 3.5H4" />
+    </>
+  ),
 };
 
 const Icon = ({name, size = 22, color = ColorPalette.TEXT, strokeWidth = 1.8}) => (

@@ -6,6 +6,7 @@ import ColorPalette from '../ColorPalette';
 const TONES = {
   need: {bg: ColorPalette.NEED_TINT, fg: ColorPalette.NEED_TEXT},
   want: {bg: ColorPalette.WANT_TINT, fg: ColorPalette.WANT_TEXT},
+  income: {bg: ColorPalette.NEUTRAL_TINT, fg: ColorPalette.NEED_TEXT},
 };
 
 const SegmentedToggle = ({options, value, onChange, style}) => (

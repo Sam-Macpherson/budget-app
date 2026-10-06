@@ -46,6 +46,7 @@ const ICONS = {
   ),
   check: <Path d="M5 12.5l4.5 4.5L19 7.5" />,
   menu: <Path d="M4 7h16M4 12h16M4 17h16" />,
+  plus: <Path d="M12 5v14M5 12h14" />,
   wallet: (
     <>
       <Path d="M5 8V7.5A2.5 2.5 0 017.5 5H17v3" />

@@ -17,7 +17,7 @@ const iconColors = (type, category) => {
   return {bg: ColorPalette.WANT_TINT, fg: ColorPalette.WANT_TEXT};
 };
 
-const BalanceSheetItem = ({type, category, amount, description, isLast}) => {
+const BalanceSheetItem = ({type, category, amount, description, recurringId, isLast}) => {
   const colors = iconColors(type, category);
   const isIncome = type === TYPE_INCOME;
   return (
@@ -25,9 +25,12 @@ const BalanceSheetItem = ({type, category, amount, description, isLast}) => {
       <View style={[balanceSheet.itemIcon, {backgroundColor: colors.bg}]}>
         <Icon name={isIncome ? 'coin' : 'receipt'} size={20} color={colors.fg} />
       </View>
-      <Text style={[typography.body, balanceSheet.itemDescription]} numberOfLines={1}>
-        {description}
-      </Text>
+      <View style={balanceSheet.itemDescriptionRow}>
+        <Text style={[typography.body, balanceSheet.itemDescriptionText]} numberOfLines={1}>
+          {description}
+        </Text>
+        {recurringId && <Icon name="repeat" size={14} color={ColorPalette.TEXT_FAINT} />}
+      </View>
       <Text style={[typography.amount, isIncome && {color: ColorPalette.NEED_TEXT}]}>
         {isIncome ? '+' : ''}
         {formatAmount(amount)}

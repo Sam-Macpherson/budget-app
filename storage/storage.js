@@ -1,7 +1,13 @@
 import _ from 'lodash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
-import {TYPE_EXPENSE, TYPE_INCOME} from '../Constants';
+import {
+  CATEGORY_NEED,
+  CATEGORY_WANT,
+  RECURRING_KINDS,
+  TYPE_EXPENSE,
+  TYPE_INCOME,
+} from '../Constants';
 import {formatDateDayMedium, formatDateMonth} from '../utils/dates';
 import expensesReducer from './reducers/expensesReducer';
 
@@ -146,7 +152,7 @@ class StorageInterface {
   }
 
   /**
-   * Serializes every month in the store into a JSON backup string.
+   * Serializes every month and the recurring items into a JSON backup string.
    *
    * @returns {Promise<string>}
    */
@@ -161,6 +167,7 @@ class StorageInterface {
       version: BACKUP_VERSION,
       exportedAt: new Date().toISOString(),
       months,
+      recurring: await this.getRecurring(),
     });
   }
 
@@ -168,7 +175,7 @@ class StorageInterface {
    * Parses a backup string produced by exportAll, throwing if it isn't a valid backup.
    *
    * @param json {string}
-   * @returns {object} - The month data keyed by month key.
+   * @returns {{months: object, recurring: object|null}} - recurring is null for version 1 backups.
    */
   parseBackup(json) {
     let backup;
@@ -180,7 +187,7 @@ class StorageInterface {
     if (
       !_.isPlainObject(backup) ||
       backup.app !== BACKUP_APP ||
-      backup.version !== BACKUP_VERSION
+      !_.includes(SUPPORTED_BACKUP_VERSIONS, backup.version)
     ) {
       throw new Error('Not a budget app backup.');
     }
@@ -197,16 +204,35 @@ class StorageInterface {
         }
       });
     });
-    return backup.months;
+    const recurring = backup.recurring ?? null;
+    if (recurring !== null && !isValidRecurringConfig(recurring)) {
+      throw new Error('Backup has malformed recurring items.');
+    }
+    return {months: backup.months, recurring};
   }
 
   /**
-   * Merges backup month data into the store. Entries already present (same date) are skipped,
+   * Merges a parsed backup into the store. Entries and recurring items already present are skipped,
    * nothing is ever removed.
    *
-   * @param months {object} - Output of parseBackup.
-   * @returns {Promise<number>} - The number of entries added.
+   * @param backup {object} - Output of parseBackup.
+   * @returns {Promise<{entries: number, recurring: number}>} - The number of each added.
    */
+  async importBackup({months, recurring}) {
+    const entries = await this.importMonths(months);
+    if (recurring === null) {
+      return {entries, recurring: 0};
+    }
+    const config = await this.getRecurring();
+    const existingIds = new Set(_.map(config.items, 'id'));
+    const newItems = _.reject(recurring.items, i => existingIds.has(i.id));
+    _.forEach(recurring.applied, (ids, monthKey) => {
+      config.applied[monthKey] = _.union(config.applied[monthKey] || [], ids);
+    });
+    await store.setObject(RECURRING_KEY, {...config, items: [...config.items, ...newItems]});
+    return {entries, recurring: newItems.length};
+  }
+
   async importMonths(months) {
     let added = 0;
     for (const [monthKey, backupMonth] of _.toPairs(months)) {
@@ -229,10 +255,130 @@ class StorageInterface {
     }
     return added;
   }
+
+  /**
+   * @returns {Promise<{items: object[], applied: Object<string, string[]>}>} - applied maps a
+   * 'YYYY-MM' month to the ids of items already added (or skipped) that month.
+   */
+  async getRecurring() {
+    return (await store.getObject(RECURRING_KEY)) || {items: [], applied: {}};
+  }
+
+  /**
+   * Creates or updates a recurring item. Doesn't touch entries already added from it.
+   *
+   * @param item {{id?: string, kind: string, description: string, amount: number, day: number}}
+   * @returns {Promise<object>} - The saved item, with its id.
+   */
+  async saveRecurringItem(item) {
+    const config = await this.getRecurring();
+    const saved = {...item, id: item.id || newId()};
+    const index = _.findIndex(config.items, {id: saved.id});
+    if (index === -1) {
+      config.items.push(saved);
+    } else {
+      config.items[index] = saved;
+    }
+    await store.setObject(RECURRING_KEY, config);
+    return saved;
+  }
+
+  async deleteRecurringItem(id) {
+    const config = await this.getRecurring();
+    _.remove(config.items, {id});
+    return store.setObject(RECURRING_KEY, config);
+  }
+
+  /**
+   * Marks an item as already handled for the month of the given date, so it isn't added then.
+   */
+  async skipRecurringForMonth(id, date = new Date()) {
+    const config = await this.getRecurring();
+    const monthKey = recurringMonthKey(date);
+    config.applied[monthKey] = _.union(config.applied[monthKey] || [], [id]);
+    return store.setObject(RECURRING_KEY, config);
+  }
+
+  async unskipRecurringForMonth(id, date = new Date()) {
+    const config = await this.getRecurring();
+    const monthKey = recurringMonthKey(date);
+    config.applied[monthKey] = _.without(config.applied[monthKey] || [], id);
+    return store.setObject(RECURRING_KEY, config);
+  }
+
+  /**
+   * Adds every recurring item whose day has arrived this month and that hasn't been added (or
+   * skipped) this month yet. Only ever touches the current month. Concurrent calls share one run so
+   * items can't be added twice.
+   *
+   * @returns {Promise<number>} - The number of entries added.
+   */
+  applyRecurring(now = new Date()) {
+    if (!this.applyingRecurring) {
+      this.applyingRecurring = this.applyRecurringNow(now).finally(() => {
+        this.applyingRecurring = null;
+      });
+    }
+    return this.applyingRecurring;
+  }
+
+  async applyRecurringNow(now) {
+    const config = await this.getRecurring();
+    const monthKey = recurringMonthKey(now);
+    const applied = config.applied[monthKey] || [];
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const due = _.filter(
+      config.items,
+      i => !_.includes(applied, i.id) && Math.min(i.day, lastDay) <= now.getDate(),
+    );
+    for (const item of due) {
+      const day = Math.min(item.day, lastDay);
+      const date = await this.unusedEntryDate(new Date(now.getFullYear(), now.getMonth(), day));
+      await this.addEntry({
+        date,
+        ...KIND_FIELDS[item.kind],
+        amount: item.amount,
+        description: item.description,
+        recurringId: item.id,
+      });
+      applied.push(item.id);
+    }
+    config.applied = _.pickBy(
+      {...config.applied, [monthKey]: applied},
+      (_ids, key) => key >= recurringMonthKey(moment(now).subtract(1, 'month')),
+    );
+    await store.setObject(RECURRING_KEY, config);
+    return due.length;
+  }
+
+  /**
+   * Entries are identified by their ISO date, so bump the milliseconds until it's unique.
+   */
+  async unusedEntryDate(date) {
+    const month = (await store.getObject(formatDateMonth(date))) || {};
+    const taken = new Set(_.flatMap(_.values(month), entries => _.map(entries, 'date')));
+    const candidate = new Date(date);
+    while (taken.has(candidate.toISOString())) {
+      candidate.setMilliseconds(candidate.getMilliseconds() + 1);
+    }
+    return candidate.toISOString();
+  }
 }
 
 const BACKUP_APP = 'com.budgetapp';
-const BACKUP_VERSION = 1;
+const BACKUP_VERSION = 2;
+const SUPPORTED_BACKUP_VERSIONS = [1, 2];
+const RECURRING_KEY = 'recurring';
+
+const KIND_FIELDS = {
+  need: {type: TYPE_EXPENSE, category: CATEGORY_NEED},
+  want: {type: TYPE_EXPENSE, category: CATEGORY_WANT},
+  income: {type: TYPE_INCOME},
+};
+
+const recurringMonthKey = date => moment(date).format('YYYY-MM');
+
+const newId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 
 const isMonthKey = key => moment(key, 'MMM YYYY', true).isValid();
 
@@ -242,6 +388,23 @@ const isValidEntry = e =>
   !_.isNaN(Date.parse(e.date)) &&
   _.includes([TYPE_INCOME, TYPE_EXPENSE], e.type) &&
   (_.isNumber(e.amount) || _.isNull(e.amount));
+
+const isValidRecurringItem = i =>
+  _.isPlainObject(i) &&
+  _.isString(i.id) &&
+  _.includes(RECURRING_KINDS, i.kind) &&
+  _.isString(i.description) &&
+  _.isNumber(i.amount) &&
+  _.isInteger(i.day) &&
+  i.day >= 1 &&
+  i.day <= 31;
+
+const isValidRecurringConfig = r =>
+  _.isPlainObject(r) &&
+  _.isArray(r.items) &&
+  _.every(r.items, isValidRecurringItem) &&
+  _.isPlainObject(r.applied) &&
+  _.every(r.applied, ids => _.isArray(ids) && _.every(ids, _.isString));
 
 const si = new StorageInterface();
 // Singleton interface.

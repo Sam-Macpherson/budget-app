@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import React, {useRef, useState, useEffect, useMemo, useCallback} from 'react';
 
-import {FlatList, View} from 'react-native';
+import {AppState, FlatList, View} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import ColorPalette from '../ColorPalette';
 
 import IncomeHeader from '../components/IncomeHeader';
@@ -40,6 +41,25 @@ const BudgetScreen = ({navigation}) => {
     });
   }, [viewingMonth]);
 
+  const applyRecurring = useCallback(
+    () =>
+      si.applyRecurring().then(added => {
+        if (added > 0) {
+          setViewingMonth(month => new Date(month));
+        }
+      }),
+    [],
+  );
+  useFocusEffect(applyRecurring);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', state => {
+      if (state === 'active') {
+        applyRecurring();
+      }
+    });
+    return () => subscription.remove();
+  }, [applyRecurring]);
+
   const resetViewingMonth = useCallback(
     () => setViewingMonth(new Date(viewingMonth)),
     [viewingMonth],
@@ -53,7 +73,11 @@ const BudgetScreen = ({navigation}) => {
           resetViewingMonth(),
         );
       } else {
-        si.editEntry({date: editingEntry.date, ...data}).then(() => resetViewingMonth());
+        si.editEntry({
+          date: editingEntry.date,
+          recurringId: editingEntry.recurringId,
+          ...data,
+        }).then(() => resetViewingMonth());
       }
     },
     [resetViewingMonth, editingEntry],

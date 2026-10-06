@@ -20,28 +20,31 @@ const BackupModal = ({onImported}) => {
   };
 
   const importData = async () => {
-    let months;
+    let backup;
     try {
       const contents = await NativeModules.BackupFile.open();
       if (contents === null) {
         return;
       }
-      months = si.parseBackup(contents);
+      backup = si.parseBackup(contents);
     } catch (e) {
       setStatus(`Import failed: ${e.message}`);
       return;
     }
     Alert.alert(
       'Import backup?',
-      'Entries missing from this phone will be added. Nothing is deleted.',
+      'Entries and recurring items missing from this phone will be added. Nothing is deleted.',
       [
         {text: 'Cancel', style: 'cancel'},
         {
           text: 'Import',
           onPress: async () => {
             try {
-              const added = await si.importMonths(months);
-              setStatus(`Imported ${added} new ${added === 1 ? 'entry' : 'entries'}.`);
+              const added = await si.importBackup(backup);
+              setStatus(
+                `Imported ${added.entries} new ${added.entries === 1 ? 'entry' : 'entries'} and ` +
+                  `${added.recurring} recurring ${added.recurring === 1 ? 'item' : 'items'}.`,
+              );
             } catch (e) {
               setStatus(`Import failed: ${e.message}`);
             }

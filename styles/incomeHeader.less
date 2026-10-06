@@ -1,7 +1,30 @@
+@import "colors";
+
 .incomeHeader {
-  width: 100%;
-  display: flex;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background-color: @surface;
+}
+
+.headerRow {
   flex-direction: row;
-  justify-content: center;
-  margin-bottom: 8px;
+  align-items: center;
+  margin: 3px 0;
+}
+
+.rowLabel {
+  width: 52px;
+}
+
+.columnLabel {
+  .cell;
+  text-align: center;
+}
+
+// Equal padding on every cell so empty cells get the same flex share as pills.
+.cell {
+  flex: 1;
+  margin: 0 3px;
+  padding: 0 10px;
 }

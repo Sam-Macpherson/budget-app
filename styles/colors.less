@@ -1,78 +1,22 @@
+// Mirrors ColorPalette.js; keep the two in sync.
+@bg: #141414;
+@surface: #1f1f1f;
+@surfaceRaised: #282828;
+@field: #333333;
+@pressed: #3c3c3c;
+@border: #2e2e2e;
 
-@lightestRed: rgba(255, 0, 0, 0.3);
-@lightRed: rgba(255, 0, 0, 0.5);
-@red: rgba(255, 0, 0, 1);
+@text: #f2f2f2;
+@textMuted: #9a9a9a;
+@textFaint: #6e6e6e;
 
-@transparent: rgba(255, 255, 255, 0);
-@lightestGreen: rgba(34, 139, 34, 0.3);
-@lightGreen: rgba(34, 139, 34, 0.5);
-@green: rgba(34, 139, 34, 1);
+@need: #228b22;
+@needText: #7ccb7c;
+@needTint: rgba(34, 139, 34, 0.22);
 
-@lightestOrange: rgba(255, 118, 0, 0.3);
-@lightOrange: rgba(255, 118, 0, 0.5);
-@orange: #ff7300;
-@darkOrange: #B96900;
-@darkestOrange: #905100;
+@want: #ff7600;
+@wantText: #ffa25e;
+@wantTint: rgba(255, 118, 0, 0.2);
 
-@lightestBlue: rgba(0, 87, 148, 0.4);
-@lightBlue: rgba(0, 87, 148, 0.5);
-@blue: rgba(0, 87, 148, 1);
-@darkBlue: #074977;
-@darkestBlue: #04385C;
-
-@white: #ffffff;
-@lightestGray: #646464;
-@lightGray: #505050;
-@gray: #3c3c3c;
-@darkGray: #282828;
-@darkestGray: #141414;
-
-.red {
-  border-color: @lightestRed;
-  color: @lightestRed;
-}
-
-.blue {
-  border-color: @lightestBlue;
-  color: @lightestBlue;
-}
-
-.orange {
-  border-color: @lightestOrange;
-  color: @lightestOrange;
-}
-
-.green {
-  border-color: @lightestGreen;
-  color: @lightestGreen;
-}
-
-.white-on-red {
-  .red;
-  background: @lightestRed;
-  color: @white;
-}
-
-.white-on-blue {
-  .blue;
-  background-color: @lightestBlue;
-  color: @white;
-}
-
-.white-on-orange {
-  .orange;
-  background-color: @lightestOrange;
-  color: @white;
-}
-
-&.white-on-green {
-  .green;
-  background-color: @lightestGreen;
-  color: @white;
-}
-
-&.transparent {
-  border-color: @transparent;
-  background-color: @transparent;
-  color: @white;
-}
+@neutralTint: rgba(255, 255, 255, 0.08);
+@danger: #e5534b;

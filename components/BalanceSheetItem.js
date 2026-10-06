@@ -1,43 +1,37 @@
 import React from 'react';
-import {CATEGORY_NEED, CATEGORY_WANT, TYPE_INCOME} from '../Constants';
-import {Image, Text, View} from 'react-native';
-import Badge from './Badge';
-
-import badge from '../styles/badge.less';
-import cardStyles from '../styles/card.less';
+import {Text, View} from 'react-native';
+import {CATEGORY_NEED, TYPE_INCOME} from '../Constants';
+import ColorPalette from '../ColorPalette';
+import formatAmount from '../utils/formatAmount';
 import balanceSheet from '../styles/balanceSheet.less';
 import typography from '../styles/typography.less';
+import Icon from './Icon';
 
-const BalanceSheetItem = ({type, category, amount, description}) => {
-  let iconStyle;
-  if (category === CATEGORY_WANT) {
-    iconStyle = balanceSheet['balanceSheetItemIcon.white-on-orange'];
+const iconColors = (type, category) => {
+  if (type === TYPE_INCOME) {
+    return {bg: ColorPalette.NEUTRAL_TINT, fg: ColorPalette.NEED_TEXT};
   }
   if (category === CATEGORY_NEED) {
-    iconStyle = balanceSheet['balanceSheetItemIcon.white-on-green'];
+    return {bg: ColorPalette.NEED_TINT, fg: ColorPalette.NEED_TEXT};
   }
-  if (type === TYPE_INCOME) {
-    iconStyle = balanceSheet['balanceSheetItemIcon.transparent'];
-  }
+  return {bg: ColorPalette.WANT_TINT, fg: ColorPalette.WANT_TEXT};
+};
 
+const BalanceSheetItem = ({type, category, amount, description, isLast}) => {
+  const colors = iconColors(type, category);
+  const isIncome = type === TYPE_INCOME;
   return (
-    <View style={[cardStyles.card, balanceSheet.balanceSheetItemContainer]}>
-      <View style={balanceSheet.balanceSheetItemLabel}>
-        <View style={[balanceSheet.balanceSheetItemIcon, iconStyle]}>
-          <Image
-            style={balanceSheet['balanceSheetItemIcon.icon']}
-            source={
-              type === TYPE_INCOME
-                ? require('../images/piggy-bank-outline.png')
-                : require('../images/receipt-outline.png')
-            }
-          />
-        </View>
-        <Text>{description}</Text>
+    <View style={[balanceSheet.itemRow, isLast && balanceSheet.itemRowLast]}>
+      <View style={[balanceSheet.itemIcon, {backgroundColor: colors.bg}]}>
+        <Icon name={isIncome ? 'coin' : 'receipt'} size={20} color={colors.fg} />
       </View>
-      <View style={balanceSheet.balanceSheetValue}>
-        <Badge textStyle={typography.medium} style={badge['badge.transparent']} text={amount} />
-      </View>
+      <Text style={[typography.body, balanceSheet.itemDescription]} numberOfLines={1}>
+        {description}
+      </Text>
+      <Text style={[typography.amount, isIncome && {color: ColorPalette.NEED_TEXT}]}>
+        {isIncome ? '+' : ''}
+        {formatAmount(amount)}
+      </Text>
     </View>
   );
 };

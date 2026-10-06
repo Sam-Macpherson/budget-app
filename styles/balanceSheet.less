@@ -2,74 +2,52 @@
 
 .balanceSheet {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 8px;
 }
 
-.balanceSheetDate {
-  width: 100%;
-  display: flex;
-
-  &.header {
-    margin-bottom: 8px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-
-    &.totals {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-    }
-  }
+.dateCard {
+  padding: 4px 12px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background-color: @surface;
 }
 
-.balanceSheetItemIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 32px;
-  width: 32px;
-  border-radius: 8px;
-  margin-right: 24px;
-
-  &.icon {
-    height: 24px;
-    width: 24px;
-  }
-
-  &.white-on-orange {
-    .orange;
-    background-color: @lightestOrange;
-  }
-
-  &.white-on-green {
-    .green;
-    background-color: @lightestGreen;
-  }
-}
-
-.balanceSheetItemContainer {
-  display: flex;
+.dateHeader {
   flex-direction: row;
-  border-bottom-color: @darkGray;
-  border-bottom-width: 1px;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  padding: 10px 0 6px;
 }
 
-.balanceSheetItemLabel {
-  height: 100%;
-  display: flex;
+.dateTotals {
+  flex-direction: row;
+}
+
+.dateTotalGap {
+  margin-left: 6px;
+}
+
+.itemRow {
   flex-direction: row;
   align-items: center;
+  padding: 10px 0;
+  border-bottom-width: 1px;
+  border-bottom-color: @border;
 }
 
-.balanceSheetValue {
-  display: flex;
-  flex-direction: row;
+.itemRowLast {
+  border-bottom-width: 0;
+}
+
+.itemIcon {
+  align-items: center;
   justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  margin-right: 12px;
+}
+
+.itemDescription {
+  flex: 1;
+  margin-right: 12px;
 }

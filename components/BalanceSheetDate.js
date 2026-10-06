@@ -1,56 +1,37 @@
-import roundToTwoDecimals from '../utils/roundToTwoDecimals';
 import _ from 'lodash';
-import {CATEGORY_NEED, CATEGORY_WANT, TYPE_EXPENSE} from '../Constants';
-import {Text, TouchableOpacity, View} from 'react-native';
-import cardStyles from '../styles/card.less';
-import typography from '../styles/typography.less';
-import balanceSheet from '../styles/balanceSheet.less';
-import Badge from './Badge';
-import badge from '../styles/badge.less';
-import BalanceSheetItem from './BalanceSheetItem';
 import React from 'react';
-import {formatDateDayMedium} from '../utils/dates';
+import {Text, TouchableOpacity, View} from 'react-native';
+import roundToTwoDecimals from '../utils/roundToTwoDecimals';
+import formatAmount from '../utils/formatAmount';
+import {CATEGORY_NEED, CATEGORY_WANT, TYPE_EXPENSE} from '../Constants';
+import {formatDateDayDisplay} from '../utils/dates';
+import balanceSheet from '../styles/balanceSheet.less';
+import typography from '../styles/typography.less';
+import Pill from './Pill';
+import BalanceSheetItem from './BalanceSheetItem';
 
-const BalanceSheetDate = ({onPressItem, item}) => {
-  const want = roundToTwoDecimals(
-    _.sum(
-      _.map(
-        _.filter(item.items, {
-          type: TYPE_EXPENSE,
-          category: CATEGORY_WANT,
-        }),
-        'amount',
-      ),
-    ),
-  );
-  const need = roundToTwoDecimals(
-    _.sum(
-      _.map(
-        _.filter(item.items, {
-          type: TYPE_EXPENSE,
-          category: CATEGORY_NEED,
-        }),
-        'amount',
-      ),
-    ),
-  );
+const sumExpenses = (items, category) =>
+  roundToTwoDecimals(_.sum(_.map(_.filter(items, {type: TYPE_EXPENSE, category}), 'amount')));
 
-  return (
-    <View style={[cardStyles.card, balanceSheet.balanceSheetDate]}>
-      <View style={balanceSheet['balanceSheetDate.header']}>
-        <Text style={typography.medium}>{formatDateDayMedium(item.date)}</Text>
-        <View style={balanceSheet['balanceSheetDate.header.totals']}>
-          <Badge textStyle={typography.small} style={badge['badge.white-on-green']} text={need} />
-          <Badge textStyle={typography.small} style={badge['badge.white-on-orange']} text={want} />
-        </View>
+const BalanceSheetDate = ({onPressItem, item}) => (
+  <View style={balanceSheet.dateCard}>
+    <View style={balanceSheet.dateHeader}>
+      <Text style={typography.bodyStrong}>{formatDateDayDisplay(item.date)}</Text>
+      <View style={balanceSheet.dateTotals}>
+        <Pill tone="need" text={formatAmount(sumExpenses(item.items, CATEGORY_NEED))} />
+        <Pill
+          style={balanceSheet.dateTotalGap}
+          tone="want"
+          text={formatAmount(sumExpenses(item.items, CATEGORY_WANT))}
+        />
       </View>
-      {_.map(item.items, i => (
-        <TouchableOpacity key={`${i.date}_${i.description}`} onPress={() => onPressItem(i)}>
-          <BalanceSheetItem {...i} />
-        </TouchableOpacity>
-      ))}
     </View>
-  );
-};
+    {_.map(item.items, (i, index) => (
+      <TouchableOpacity key={`${i.date}_${i.description}`} onPress={() => onPressItem(i)}>
+        <BalanceSheetItem {...i} isLast={index === item.items.length - 1} />
+      </TouchableOpacity>
+    ))}
+  </View>
+);
 
 export default BalanceSheetDate;

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Alert, NativeModules, Text, View} from 'react-native';
 import moment from 'moment';
-import backupModal from '../styles/backupModal.less';
+import modal from '../styles/modal.less';
 import typography from '../styles/typography.less';
 import Button from './Button';
 import si from '../storage/storage';
@@ -53,17 +53,20 @@ const BackupModal = ({onImported}) => {
   };
 
   return (
-    <View style={backupModal.backupModalContainer}>
-      <Text style={[typography.largest, typography.italics]}>backup</Text>
-      <View style={backupModal.backupButtons}>
-        <View style={backupModal.backupButton}>
-          <Button text="export" style={typography.large} onPress={exportData} />
-        </View>
-        <View style={backupModal.backupButton}>
-          <Button text="import" style={typography.large} onPress={importData} />
-        </View>
+    <View style={modal.sheet}>
+      <View style={modal.sheetHeader}>
+        <Text style={typography.title}>Backup</Text>
       </View>
-      {status !== '' && <Text style={typography.medium}>{status}</Text>}
+      <View style={modal.buttonRow}>
+        <Button style={modal.buttonFill} icon="upload" text="Export" onPress={exportData} />
+        <Button
+          style={[modal.buttonFill, modal.buttonRowGap]}
+          icon="download"
+          text="Import"
+          onPress={importData}
+        />
+      </View>
+      {status !== '' && <Text style={[typography.caption, modal.status]}>{status}</Text>}
     </View>
   );
 };

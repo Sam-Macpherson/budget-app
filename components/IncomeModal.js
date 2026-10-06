@@ -1,48 +1,56 @@
-import {Text, TextInput, View} from 'react-native';
-import React, {useState} from 'react';
 import _ from 'lodash';
-import incomeModal from '../styles/incomeModal.less';
+import React, {useRef, useState} from 'react';
+import {Text, View} from 'react-native';
+import ColorPalette from '../ColorPalette';
+import modal from '../styles/modal.less';
 import typography from '../styles/typography.less';
-import expenseModal from "../styles/expenseModal.less";
-import Button from "./Button";
+import Button from './Button';
+import TextField from './TextField';
 
 const IncomeModal = ({onSubmit, entry, deleteEntry}) => {
   const [amount, setAmount] = useState(_.isNull(entry) ? 0 : entry.amount);
   const [description, setDescription] = useState(_.isNull(entry) ? '' : entry.description);
-  const [valueTextInput, setValueTextInput] = useState(null);
+  const amountInput = useRef(null);
+  const submit = () => onSubmit({amount, description});
 
   return (
-    <View style={incomeModal.incomeModalContainer}>
-      <View style={incomeModal.incomeModalHeader}>
-        <Text style={[typography.largest, typography.italics]}>
-          {_.isNull(entry) ? 'add' : 'edit'} income
-        </Text>
+    <View style={modal.sheet}>
+      <View style={modal.sheetHeader}>
+        <Text style={typography.title}>{_.isNull(entry) ? 'Add income' : 'Edit income'}</Text>
         {_.isNull(entry) || (
           <Button
+            variant="ghost"
+            icon="trash"
+            iconColor={ColorPalette.DANGER}
             onPress={() => deleteEntry(entry)}
-            style={{marginLeft: 4}}
-            image={require('../images/trash-can.png')}
           />
         )}
       </View>
-      <View style={incomeModal.incomeDetails}>
-        <TextInput
-          onSubmitEditing={() => valueTextInput.focus()}
+      <View style={modal.fieldRow}>
+        <TextField
+          style={modal.memoField}
+          label="memo"
+          placeholder="Where from?"
           defaultValue={_.isNull(entry) ? '' : entry.description}
-          style={[incomeModal.incomeModalInput, {width: '65%'}]}
           onChangeText={setDescription}
-          placeholder="Memo"
+          returnKeyType="next"
+          blurOnSubmit={false}
+          onSubmitEditing={() => amountInput.current?.focus()}
         />
-        <TextInput
-          ref={input => setValueTextInput(input)}
-          onSubmitEditing={() => onSubmit({amount, description})}
-          defaultValue={_.isNull(entry) ? '' : String(entry.amount)}
-          style={[incomeModal.incomeModalInput, typography.rightAlign, {width: '35%'}]}
-          onChangeText={value => setAmount(Number(value))}
+        <TextField
+          ref={amountInput}
+          style={modal.amountField}
+          inputStyle={typography.rightAlign}
+          label="amount"
+          prefix="$"
           placeholder="0.00"
           keyboardType="numeric"
+          defaultValue={_.isNull(entry) ? '' : String(entry.amount)}
+          onChangeText={value => setAmount(Number(value))}
+          onSubmitEditing={submit}
         />
       </View>
+      <Button variant="primary" text="Save" onPress={submit} />
     </View>
   );
 };

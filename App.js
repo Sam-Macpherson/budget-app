@@ -8,7 +8,6 @@ import IncomeHeader from './components/IncomeHeader';
 import {TYPE_EXPENSE, TYPE_INCOME} from './Constants';
 
 import balanceSheet from './styles/balanceSheet.less';
-import typography from './styles/typography.less';
 import BalanceSheetDate from './components/BalanceSheetDate';
 import Button from './components/Button';
 import footerStyles from './styles/footer.less';
@@ -16,9 +15,9 @@ import Modal from 'react-native-modalbox';
 import ExpenseModal from './components/ExpenseModal';
 import si from './storage/storage';
 import {formatDateMonth} from './utils/dates';
-import MonthPicker from 'react-native-month-year-picker';
 import IncomeModal from './components/IncomeModal';
 import BackupModal from './components/BackupModal';
+import MonthPickerModal from './components/MonthPickerModal';
 
 const App = () => {
   const [editingEntry, setEditingEntry] = useState(null);
@@ -26,8 +25,7 @@ const App = () => {
   const addIncomeModal = useRef(null);
   const backupModal = useRef(null);
   const [viewingMonth, setViewingMonth] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const showPicker = useCallback(value => setShowDatePicker(value), []);
+  const monthPickerModal = useRef(null);
 
   const [sheetItems, setSheetItems] = useState({});
   // Flat list of all items for the header.
@@ -58,16 +56,6 @@ const App = () => {
     [resetViewingMonth, editingEntry],
   );
 
-  const onDateChanged = useCallback(
-    (event, newDate) => {
-      const selectedDate = newDate || viewingMonth;
-
-      showPicker(false);
-      setViewingMonth(selectedDate);
-    },
-    [showPicker, viewingMonth],
-  );
-
   return (
     <View style={styles.container}>
       <IncomeHeader items={allItems} />
@@ -92,37 +80,30 @@ const App = () => {
       />
       <View style={footerStyles.footer}>
         <Button
-          style={typography.largest}
+          icon="calendar"
+          trailingIcon="chevronDown"
           text={formatDateMonth(viewingMonth)}
-          onPress={() => showPicker(true)}
+          onPress={() => monthPickerModal.current?.open()}
         />
         <View style={footerStyles.buttons}>
-          <Button onPress={() => backupModal.current?.open()} style={typography.largest} text="⋯" />
+          <Button variant="ghost" icon="more" onPress={() => backupModal.current?.open()} />
           <Button
+            style={footerStyles.buttonGap}
+            icon="coin"
+            iconColor={ColorPalette.NEED_TEXT}
             onPress={() => addIncomeModal.current?.open()}
-            style={{marginLeft: 4}}
-            image={require('./images/piggy-bank-outline.png')}
           />
           <Button
+            style={footerStyles.buttonGap}
+            variant="primary"
+            icon="receipt"
             onPress={() => addExpenseModal.current?.open()}
-            style={{marginLeft: 4}}
-            image={require('./images/receipt-outline.png')}
           />
         </View>
       </View>
-      {showDatePicker && (
-        <MonthPicker
-          onChange={onDateChanged}
-          value={viewingMonth}
-          minimumDate={new Date(1998, 4)}
-          maximumDate={new Date()}
-          mode="short"
-        />
-      )}
       <Modal
         ref={addExpenseModal}
-
-        style={{height: 150, borderRadius: 8, backgroundColor: ColorPalette.DARK_GRAY}}
+        style={[styles.sheet, styles.expenseSheet]}
         position={'bottom'}
         onClosed={_.partial(setEditingEntry, null)}>
         <ExpenseModal
@@ -142,7 +123,7 @@ const App = () => {
       </Modal>
       <Modal
         ref={addIncomeModal}
-        style={{height: 110, borderRadius: 8, backgroundColor: ColorPalette.DARK_GRAY}}
+        style={[styles.sheet, styles.incomeSheet]}
         position={'bottom'}
         onClosed={_.partial(setEditingEntry, null)}>
         <IncomeModal
@@ -160,11 +141,17 @@ const App = () => {
           }}
         />
       </Modal>
-      <Modal
-        ref={backupModal}
-        style={{height: 130, borderRadius: 8, backgroundColor: ColorPalette.DARK_GRAY}}
-        position={'bottom'}>
+      <Modal ref={backupModal} style={[styles.sheet, styles.backupSheet]} position={'bottom'}>
         <BackupModal onImported={resetViewingMonth} />
+      </Modal>
+      <Modal ref={monthPickerModal} style={[styles.sheet, styles.monthSheet]} position={'bottom'}>
+        <MonthPickerModal
+          value={viewingMonth}
+          onSelect={date => {
+            setViewingMonth(date);
+            monthPickerModal.current?.close();
+          }}
+        />
       </Modal>
     </View>
   );
@@ -173,12 +160,21 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: ColorPalette.DARKEST_GRAY,
+    backgroundColor: ColorPalette.BG,
     height: '100%',
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
   },
+  sheet: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    backgroundColor: ColorPalette.SURFACE_RAISED,
+  },
+  expenseSheet: {height: 280},
+  incomeSheet: {height: 224},
+  backupSheet: {height: 172},
+  monthSheet: {height: 300},
 });
 
 export default App;

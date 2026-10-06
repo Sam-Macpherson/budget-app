@@ -1,18 +1,17 @@
 import React from 'react';
 import {Text, View} from 'react-native';
-import styles from '../styles/pill.less';
-import typography from '../styles/typography.less';
-import ColorPalette from '../ColorPalette';
+import typography from '../theme/typography';
 
 const TONES = {
-  need: {bg: ColorPalette.NEED_TINT, fg: ColorPalette.NEED_TEXT},
-  want: {bg: ColorPalette.WANT_TINT, fg: ColorPalette.WANT_TEXT},
-  neutral: {bg: ColorPalette.NEUTRAL_TINT, fg: ColorPalette.TEXT},
+  need: {bg: 'bg-need-tint', fg: 'text-need-text'},
+  want: {bg: 'bg-want-tint', fg: 'text-want-text'},
+  neutral: {bg: 'bg-neutral-tint', fg: 'text-ink'},
 };
 
-const Pill = ({text, tone = 'neutral', style}) => (
-  <View style={[styles.pill, {backgroundColor: TONES[tone].bg}, style]}>
-    <Text style={[typography.amountSmall, {color: TONES[tone].fg}]} numberOfLines={1}>
+const Pill = ({text, tone = 'neutral', className = ''}) => (
+  <View
+    className={`items-center justify-center px-2.5 py-[3px] rounded-full ${TONES[tone].bg} ${className}`}>
+    <Text className={`${typography.amountSmall} ${TONES[tone].fg}`} numberOfLines={1}>
       {text}
     </Text>
   </View>

@@ -2,55 +2,23 @@ import _ from 'lodash';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Alert, ScrollView, Text, TouchableOpacity, View} from 'react-native';
 import moment from 'moment';
-import ColorPalette from '../ColorPalette';
 import BottomSheet from '../components/BottomSheet';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
+import ListRow from '../components/ListRow';
 import Pill from '../components/Pill';
 import RecurringModal from '../components/RecurringModal';
 import Screen from '../components/Screen';
 import si from '../storage/storage';
-import balanceSheet from '../styles/balanceSheet.less';
-import styles from '../styles/recurring.less';
-import typography from '../styles/typography.less';
+import {useTheme} from '../theme/ThemeProvider';
+import typography from '../theme/typography';
 import formatAmount from '../utils/formatAmount';
 import roundToTwoDecimals from '../utils/roundToTwoDecimals';
 
 const SHEET_HEIGHT = 360;
 
-const KIND_COLORS = {
-  need: {bg: ColorPalette.NEED_TINT, fg: ColorPalette.NEED_TEXT},
-  want: {bg: ColorPalette.WANT_TINT, fg: ColorPalette.WANT_TEXT},
-  income: {bg: ColorPalette.NEUTRAL_TINT, fg: ColorPalette.NEED_TEXT},
-};
-
-const RecurringRow = ({item, isLast, onPress}) => {
-  const colors = KIND_COLORS[item.kind];
-  const isIncome = item.kind === 'income';
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <View style={[balanceSheet.itemRow, isLast && balanceSheet.itemRowLast]}>
-        <View style={[balanceSheet.itemIcon, {backgroundColor: colors.bg}]}>
-          <Icon name={isIncome ? 'coin' : 'receipt'} size={20} color={colors.fg} />
-        </View>
-        <View style={balanceSheet.itemDescription}>
-          <Text style={typography.body} numberOfLines={1}>
-            {item.description}
-          </Text>
-          <Text style={typography.caption}>
-            Monthly on the {moment.localeData().ordinal(item.day)}
-          </Text>
-        </View>
-        <Text style={[typography.amount, isIncome && {color: ColorPalette.NEED_TEXT}]}>
-          {isIncome ? '+' : ''}
-          {formatAmount(item.amount)}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
 const RecurringScreen = ({navigation}) => {
+  const {colors} = useTheme();
   const [items, setItems] = useState([]);
   const [editing, setEditing] = useState(null);
   const sheet = useRef(null);
@@ -59,6 +27,7 @@ const RecurringScreen = ({navigation}) => {
   useEffect(() => {
     load();
   }, [load]);
+  useEffect(() => si.subscribe(load), [load]);
 
   const sorted = _.sortBy(items, ['day', i => i.description.toLowerCase()]);
   const total = kind => roundToTwoDecimals(_.sum(_.map(_.filter(items, {kind}), 'amount')));
@@ -117,21 +86,21 @@ const RecurringScreen = ({navigation}) => {
 
   return (
     <Screen title="Recurring" onMenu={navigation.openDrawer}>
-      <ScrollView style={styles.list}>
+      <ScrollView className="flex-1">
         {_.isEmpty(items) ? (
-          <View style={styles.emptyCard}>
-            <Icon name="repeat" size={28} color={ColorPalette.TEXT_MUTED} />
-            <Text style={[typography.bodyStrong, styles.emptyTitle]}>No recurring items yet</Text>
-            <Text style={[typography.caption, styles.emptyText]}>
+          <View className="items-center px-6 py-8 rounded-2xl bg-surface">
+            <Icon name="repeat" size={28} color={colors.TEXT_MUTED} />
+            <Text className={`${typography.bodyStrong} mt-3`}>No recurring items yet</Text>
+            <Text className={`${typography.caption} mt-1 text-center`}>
               Rent, subscriptions and salary set up here get added to each month automatically.
             </Text>
           </View>
         ) : (
           <>
-            <View style={styles.totals}>
+            <View className="flex-row px-[9px] py-3 mb-3 rounded-2xl bg-surface">
               {_.map(['need', 'want', 'income'], kind => (
-                <View key={kind} style={styles.total}>
-                  <Text style={[typography.label, styles.totalLabel]}>{kind}</Text>
+                <View key={kind} className="flex-1 mx-[3px]">
+                  <Text className={`${typography.label} text-center mb-1.5`}>{kind}</Text>
                   <Pill
                     tone={kind === 'income' ? 'neutral' : kind}
                     text={formatAmount(total(kind))}
@@ -139,14 +108,17 @@ const RecurringScreen = ({navigation}) => {
                 </View>
               ))}
             </View>
-            <View style={balanceSheet.dateCard}>
+            <View className="px-3 py-1 mb-3 rounded-2xl bg-surface">
               {_.map(sorted, (item, index) => (
-                <RecurringRow
-                  key={item.id}
-                  item={item}
-                  isLast={index === sorted.length - 1}
-                  onPress={() => open(item)}
-                />
+                <TouchableOpacity key={item.id} onPress={() => open(item)}>
+                  <ListRow
+                    tone={item.kind}
+                    description={item.description}
+                    subtitle={`Monthly on the ${moment.localeData().ordinal(item.day)}`}
+                    amount={item.amount}
+                    isLast={index === sorted.length - 1}
+                  />
+                </TouchableOpacity>
               ))}
             </View>
           </>
@@ -156,7 +128,7 @@ const RecurringScreen = ({navigation}) => {
         variant="primary"
         icon="plus"
         text="Add recurring item"
-        style={styles.addButton}
+        className="mt-3"
         onPress={() => open(null)}
       />
       <BottomSheet ref={sheet} height={SHEET_HEIGHT}>

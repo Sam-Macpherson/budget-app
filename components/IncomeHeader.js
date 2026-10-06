@@ -2,24 +2,26 @@ import _ from 'lodash';
 import React from 'react';
 import {Text, View} from 'react-native';
 import {CATEGORY_NEED, CATEGORY_WANT, TYPE_EXPENSE, TYPE_INCOME} from '../Constants';
+import typography from '../theme/typography';
 import roundToTwoDecimals from '../utils/roundToTwoDecimals';
 import formatAmount from '../utils/formatAmount';
 import Pill from './Pill';
-import style from '../styles/incomeHeader.less';
-import typography from '../styles/typography.less';
+
+// Every cell has the same horizontal padding so empty cells get the same flex share as pills.
+const CELL = 'flex-1 mx-[3px] px-2.5';
 
 const sumExpenses = (items, category) =>
   roundToTwoDecimals(_.sum(_.map(_.filter(items, {type: TYPE_EXPENSE, category}), 'amount')));
 
 const Row = ({label, need, want, save}) => (
-  <View style={style.headerRow}>
-    <Text style={[typography.caption, style.rowLabel]}>{label}</Text>
-    <Pill style={style.cell} tone="need" text={formatAmount(need)} />
-    <Pill style={style.cell} tone="want" text={formatAmount(want)} />
+  <View className="flex-row items-center my-[3px]">
+    <Text className={`${typography.caption} w-[52px]`}>{label}</Text>
+    <Pill className={CELL} tone="need" text={formatAmount(need)} />
+    <Pill className={CELL} tone="want" text={formatAmount(want)} />
     {_.isUndefined(save) ? (
-      <View style={style.cell} />
+      <View className={CELL} />
     ) : (
-      <Pill style={style.cell} tone="neutral" text={formatAmount(save)} />
+      <Pill className={CELL} tone="neutral" text={formatAmount(save)} />
     )}
   </View>
 );
@@ -35,12 +37,12 @@ const IncomeHeader = ({items}) => {
   const wantsExpenses = sumExpenses(items, CATEGORY_WANT);
 
   return (
-    <View style={style.incomeHeader}>
-      <View style={style.headerRow}>
-        <View style={style.rowLabel} />
-        <Text style={[typography.label, style.columnLabel]}>need</Text>
-        <Text style={[typography.label, style.columnLabel]}>want</Text>
-        <Text style={[typography.label, style.columnLabel]}>save</Text>
+    <View className="p-3 mb-3 rounded-2xl bg-surface">
+      <View className="flex-row items-center my-[3px]">
+        <View className="w-[52px]" />
+        <Text className={`${typography.label} ${CELL} text-center`}>need</Text>
+        <Text className={`${typography.label} ${CELL} text-center`}>want</Text>
+        <Text className={`${typography.label} ${CELL} text-center`}>save</Text>
       </View>
       <Row label="income" need={need} want={want} save={save} />
       <Row label="spent" need={needsExpenses} want={wantsExpenses} />

@@ -3,31 +3,28 @@ import React, {useRef, useState, useEffect, useMemo, useCallback} from 'react';
 
 import {AppState, FlatList, View} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import ColorPalette from '../ColorPalette';
+import {useTheme} from '../theme/ThemeProvider';
 
 import IncomeHeader from '../components/IncomeHeader';
 import {TYPE_EXPENSE, TYPE_INCOME} from '../Constants';
 
-import balanceSheet from '../styles/balanceSheet.less';
 import BalanceSheetDate from '../components/BalanceSheetDate';
 import Button from '../components/Button';
-import footerStyles from '../styles/footer.less';
 import BottomSheet from '../components/BottomSheet';
 import ExpenseModal from '../components/ExpenseModal';
 import si from '../storage/storage';
 import {formatDateMonth} from '../utils/dates';
 import IncomeModal from '../components/IncomeModal';
-import BackupModal from '../components/BackupModal';
 import MonthPickerModal from '../components/MonthPickerModal';
 import Screen from '../components/Screen';
 
-const SHEET_HEIGHTS = {expense: 280, income: 224, backup: 172, month: 300};
+const SHEET_HEIGHTS = {expense: 280, income: 224, month: 300};
 
 const BudgetScreen = ({navigation}) => {
+  const {colors} = useTheme();
   const [editingEntry, setEditingEntry] = useState(null);
   const addExpenseModal = useRef(null);
   const addIncomeModal = useRef(null);
-  const backupModal = useRef(null);
   const [viewingMonth, setViewingMonth] = useState(new Date());
   const monthPickerModal = useRef(null);
 
@@ -51,6 +48,7 @@ const BudgetScreen = ({navigation}) => {
     [],
   );
   useFocusEffect(applyRecurring);
+  useEffect(() => si.subscribe(() => setViewingMonth(month => new Date(month))), []);
   useEffect(() => {
     const subscription = AppState.addEventListener('change', state => {
       if (state === 'active') {
@@ -87,7 +85,7 @@ const BudgetScreen = ({navigation}) => {
     <Screen title="Budget" onMenu={navigation.openDrawer}>
       <IncomeHeader items={allItems} />
       <FlatList
-        style={[balanceSheet.balanceSheet]}
+        className="w-full"
         data={sheetItems}
         renderItem={({item}) =>
           !_.isEmpty(item.items) ? (
@@ -105,25 +103,25 @@ const BudgetScreen = ({navigation}) => {
           ) : null
         }
       />
-      <View style={footerStyles.footer}>
+      <View className="flex-row justify-between items-center pt-3">
         <Button
           icon="calendar"
           trailingIcon="chevronDown"
           text={formatDateMonth(viewingMonth)}
           onPress={() => monthPickerModal.current?.open()}
         />
-        <View style={footerStyles.buttons}>
-          <Button variant="ghost" icon="more" onPress={() => backupModal.current?.open()} />
+        <View className="flex-row items-center">
           <Button
-            style={footerStyles.buttonGap}
             icon="coin"
-            iconColor={ColorPalette.NEED_TEXT}
+            iconColor={colors.NEED_TEXT}
+            accessibilityLabel="Add income"
             onPress={() => addIncomeModal.current?.open()}
           />
           <Button
-            style={footerStyles.buttonGap}
+            className="ml-2"
             variant="primary"
             icon="receipt"
+            accessibilityLabel="Add expense"
             onPress={() => addExpenseModal.current?.open()}
           />
         </View>
@@ -165,9 +163,6 @@ const BudgetScreen = ({navigation}) => {
             addIncomeModal.current?.close();
           }}
         />
-      </BottomSheet>
-      <BottomSheet ref={backupModal} height={SHEET_HEIGHTS.backup}>
-        <BackupModal onImported={resetViewingMonth} />
       </BottomSheet>
       <BottomSheet ref={monthPickerModal} height={SHEET_HEIGHTS.month}>
         <MonthPickerModal

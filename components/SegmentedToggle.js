@@ -1,28 +1,27 @@
 import React from 'react';
 import {Pressable, Text, View} from 'react-native';
-import styles from '../styles/segmentedToggle.less';
-import ColorPalette from '../ColorPalette';
 
 const TONES = {
-  need: {bg: ColorPalette.NEED_TINT, fg: ColorPalette.NEED_TEXT},
-  want: {bg: ColorPalette.WANT_TINT, fg: ColorPalette.WANT_TEXT},
-  income: {bg: ColorPalette.NEUTRAL_TINT, fg: ColorPalette.NEED_TEXT},
+  need: {bg: 'bg-need-tint', fg: 'text-need-text'},
+  want: {bg: 'bg-want-tint', fg: 'text-want-text'},
+  income: {bg: 'bg-neutral-tint', fg: 'text-need-text'},
 };
 
-const SegmentedToggle = ({options, value, onChange, style}) => (
-  <View style={[styles.toggle, style]}>
+const SegmentedToggle = ({options, value, onChange, className = ''}) => (
+  <View className={`flex-row h-10 p-[3px] rounded-xl bg-field ${className}`}>
     {options.map(option => {
       const selected = option.value === value;
       return (
         <Pressable
           key={option.value}
           onPress={() => onChange(option.value)}
-          style={[styles.segment, selected && {backgroundColor: TONES[option.tone].bg}]}>
+          className={`flex-1 items-center justify-center rounded-[9px] ${
+            selected ? TONES[option.tone].bg : ''
+          }`}>
           <Text
-            style={[
-              styles.segmentText,
-              {color: selected ? TONES[option.tone].fg : ColorPalette.TEXT_MUTED},
-            ]}>
+            className={`text-body font-semibold ${
+              selected ? TONES[option.tone].fg : 'text-muted'
+            }`}>
             {option.label}
           </Text>
         </Pressable>

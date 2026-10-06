@@ -1,6 +1,6 @@
 import React from 'react';
 import Svg, {Circle, Path, Rect} from 'react-native-svg';
-import ColorPalette from '../ColorPalette';
+import {useTheme} from '../theme/ThemeProvider';
 
 const ICONS = {
   receipt: (
@@ -47,6 +47,13 @@ const ICONS = {
   check: <Path d="M5 12.5l4.5 4.5L19 7.5" />,
   menu: <Path d="M4 7h16M4 12h16M4 17h16" />,
   plus: <Path d="M12 5v14M5 12h14" />,
+  sun: (
+    <>
+      <Circle cx="12" cy="12" r="4" />
+      <Path d="M12 2.5v2M12 19.5v2M4.6 4.6L6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4" />
+    </>
+  ),
+  moon: <Path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z" />,
   wallet: (
     <>
       <Path d="M5 8V7.5A2.5 2.5 0 017.5 5H17v3" />
@@ -64,18 +71,21 @@ const ICONS = {
   ),
 };
 
-const Icon = ({name, size = 22, color = ColorPalette.TEXT, strokeWidth = 1.8}) => (
-  <Svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth={strokeWidth}
-    strokeLinecap="round"
-    strokeLinejoin="round">
-    {ICONS[name]}
-  </Svg>
-);
+const Icon = ({name, size = 22, color, strokeWidth = 1.8}) => {
+  const {colors} = useTheme();
+  return (
+    <Svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color || colors.TEXT}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round">
+      {ICONS[name]}
+    </Svg>
+  );
+};
 
 export default Icon;

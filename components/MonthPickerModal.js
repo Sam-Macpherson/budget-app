@@ -2,9 +2,7 @@ import _ from 'lodash';
 import React, {useState} from 'react';
 import {Pressable, Text, View} from 'react-native';
 import moment from 'moment';
-import modal from '../styles/modal.less';
-import styles from '../styles/monthPicker.less';
-import typography from '../styles/typography.less';
+import typography from '../theme/typography';
 import Button from './Button';
 
 const MIN_DATE = new Date(1998, 4);
@@ -18,27 +16,29 @@ const MonthPickerModal = ({value, onSelect}) => {
   const isSelected = month => year === value.getFullYear() && month === value.getMonth();
 
   return (
-    <View style={modal.sheet}>
-      <View style={modal.sheetHeader}>
-        <Text style={typography.title}>Choose month</Text>
+    <View className="p-5">
+      <View className="flex-row justify-between items-center h-11 mb-3">
+        <Text className={typography.title}>Choose month</Text>
       </View>
-      <View style={styles.yearRow}>
+      <View className="flex-row items-center justify-between mb-3">
         <Button
           variant="ghost"
           icon="chevronLeft"
+          accessibilityLabel="Previous year"
           onPress={canGoBack ? () => setYear(year - 1) : undefined}
-          style={!canGoBack && styles.hidden}
+          className={canGoBack ? '' : 'opacity-0'}
         />
-        <Text style={[typography.title, styles.year]}>{year}</Text>
+        <Text className={`${typography.title} tabular-nums`}>{year}</Text>
         <Button
           variant="ghost"
           icon="chevronRight"
+          accessibilityLabel="Next year"
           onPress={canGoForward ? () => setYear(year + 1) : undefined}
-          style={!canGoForward && styles.hidden}
+          className={canGoForward ? '' : 'opacity-0'}
         />
       </View>
       {_.map(_.chunk(_.range(12), 4), row => (
-        <View key={row[0]} style={styles.monthRow}>
+        <View key={row[0]} className="flex-row mb-2">
           {_.map(row, month => {
             const disabled = isDisabled(month);
             const selected = isSelected(month);
@@ -47,17 +47,13 @@ const MonthPickerModal = ({value, onSelect}) => {
                 key={month}
                 disabled={disabled}
                 onPress={() => onSelect(new Date(year, month))}
-                style={({pressed}) => [
-                  styles.month,
-                  pressed && styles.monthPressed,
-                  selected && styles.monthSelected,
-                ]}>
+                className={`flex-1 h-11 mx-1 items-center justify-center rounded-xl ${
+                  selected ? 'bg-ink' : 'bg-field active:bg-pressed'
+                }`}>
                 <Text
-                  style={[
-                    styles.monthText,
-                    selected && styles.monthTextSelected,
-                    disabled && styles.monthTextDisabled,
-                  ]}>
+                  className={`text-body font-semibold ${
+                    selected ? 'text-canvas' : disabled ? 'text-faint' : 'text-ink'
+                  }`}>
                   {moment().month(month).format('MMM')}
                 </Text>
               </Pressable>

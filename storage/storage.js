@@ -71,6 +71,21 @@ const store = new Storage();
  * Implementation of the interactions specific to this application.
  */
 class StorageInterface {
+  listeners = new Set();
+
+  /**
+   * Registers a callback for bulk changes made outside the current screen (backup imports).
+   * @returns {function} - Unsubscribes.
+   */
+  subscribe(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  notify() {
+    this.listeners.forEach(listener => listener());
+  }
+
   /**
    * Empties the whole store.
    * @returns {Promise<*>}
@@ -221,6 +236,7 @@ class StorageInterface {
   async importBackup({months, recurring}) {
     const entries = await this.importMonths(months);
     if (recurring === null) {
+      this.notify();
       return {entries, recurring: 0};
     }
     const config = await this.getRecurring();
@@ -230,6 +246,7 @@ class StorageInterface {
       config.applied[monthKey] = _.union(config.applied[monthKey] || [], ids);
     });
     await store.setObject(RECURRING_KEY, {...config, items: [...config.items, ...newItems]});
+    this.notify();
     return {entries, recurring: newItems.length};
   }
 
@@ -254,6 +271,17 @@ class StorageInterface {
       await store.setObject(monthKey, newMonth);
     }
     return added;
+  }
+
+  /**
+   * @returns {Promise<'light'|'dark'|null>} - null until the user has picked a theme.
+   */
+  async getThemePreference() {
+    return (await store.getObject(THEME_KEY)) || null;
+  }
+
+  async setThemePreference(scheme) {
+    return store.setObject(THEME_KEY, scheme);
   }
 
   /**
@@ -369,6 +397,7 @@ const BACKUP_APP = 'com.budgetapp';
 const BACKUP_VERSION = 2;
 const SUPPORTED_BACKUP_VERSIONS = [1, 2];
 const RECURRING_KEY = 'recurring';
+const THEME_KEY = 'theme';
 
 const KIND_FIELDS = {
   need: {type: TYPE_EXPENSE, category: CATEGORY_NEED},

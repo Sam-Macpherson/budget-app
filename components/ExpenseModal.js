@@ -2,9 +2,8 @@ import _ from 'lodash';
 import React, {useRef, useState} from 'react';
 import {Text, View} from 'react-native';
 import {CATEGORY_NEED, CATEGORY_WANT} from '../Constants';
-import ColorPalette from '../ColorPalette';
-import modal from '../styles/modal.less';
-import typography from '../styles/typography.less';
+import {useTheme} from '../theme/ThemeProvider';
+import typography from '../theme/typography';
 import Button from './Button';
 import SegmentedToggle from './SegmentedToggle';
 import TextField from './TextField';
@@ -15,6 +14,7 @@ const CATEGORY_OPTIONS = [
 ];
 
 const ExpenseModal = ({onSubmit, entry, deleteEntry}) => {
+  const {colors} = useTheme();
   const [category, setCategory] = useState(_.isNull(entry) ? CATEGORY_WANT : entry.category);
   const [amount, setAmount] = useState(_.isNull(entry) ? 0 : entry.amount);
   const [description, setDescription] = useState(_.isNull(entry) ? '' : entry.description);
@@ -22,27 +22,28 @@ const ExpenseModal = ({onSubmit, entry, deleteEntry}) => {
   const submit = () => onSubmit({category, amount, description});
 
   return (
-    <View style={modal.sheet}>
-      <View style={modal.sheetHeader}>
-        <Text style={typography.title}>{_.isNull(entry) ? 'Add expense' : 'Edit expense'}</Text>
+    <View className="p-5">
+      <View className="flex-row justify-between items-center h-11 mb-3">
+        <Text className={typography.title}>{_.isNull(entry) ? 'Add expense' : 'Edit expense'}</Text>
         {_.isNull(entry) || (
           <Button
             variant="ghost"
             icon="trash"
-            iconColor={ColorPalette.DANGER}
+            iconColor={colors.DANGER}
+            accessibilityLabel="Delete"
             onPress={() => deleteEntry(entry)}
           />
         )}
       </View>
       <SegmentedToggle
-        style={modal.section}
+        className="mb-4"
         options={CATEGORY_OPTIONS}
         value={category}
         onChange={setCategory}
       />
-      <View style={modal.fieldRow}>
+      <View className="flex-row mb-4">
         <TextField
-          style={modal.memoField}
+          className="flex-1 mr-2.5"
           label="memo"
           placeholder="What was it?"
           defaultValue={_.isNull(entry) ? '' : entry.description}
@@ -53,8 +54,8 @@ const ExpenseModal = ({onSubmit, entry, deleteEntry}) => {
         />
         <TextField
           ref={amountInput}
-          style={modal.amountField}
-          inputStyle={typography.rightAlign}
+          className="w-[130px]"
+          inputClassName="text-right"
           label="amount"
           prefix="$"
           placeholder="0.00"

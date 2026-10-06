@@ -5,8 +5,7 @@ import roundToTwoDecimals from '../utils/roundToTwoDecimals';
 import formatAmount from '../utils/formatAmount';
 import {CATEGORY_NEED, CATEGORY_WANT, TYPE_EXPENSE} from '../Constants';
 import {formatDateDayDisplay} from '../utils/dates';
-import balanceSheet from '../styles/balanceSheet.less';
-import typography from '../styles/typography.less';
+import typography from '../theme/typography';
 import Pill from './Pill';
 import BalanceSheetItem from './BalanceSheetItem';
 
@@ -14,13 +13,13 @@ const sumExpenses = (items, category) =>
   roundToTwoDecimals(_.sum(_.map(_.filter(items, {type: TYPE_EXPENSE, category}), 'amount')));
 
 const BalanceSheetDate = ({onPressItem, item}) => (
-  <View style={balanceSheet.dateCard}>
-    <View style={balanceSheet.dateHeader}>
-      <Text style={typography.bodyStrong}>{formatDateDayDisplay(item.date)}</Text>
-      <View style={balanceSheet.dateTotals}>
+  <View className="px-3 py-1 mb-3 rounded-2xl bg-surface">
+    <View className="flex-row justify-between items-center pt-2.5 pb-1.5">
+      <Text className={typography.bodyStrong}>{formatDateDayDisplay(item.date)}</Text>
+      <View className="flex-row">
         <Pill tone="need" text={formatAmount(sumExpenses(item.items, CATEGORY_NEED))} />
         <Pill
-          style={balanceSheet.dateTotalGap}
+          className="ml-1.5"
           tone="want"
           text={formatAmount(sumExpenses(item.items, CATEGORY_WANT))}
         />

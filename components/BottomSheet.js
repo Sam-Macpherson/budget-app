@@ -17,7 +17,7 @@ import {
   View,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import ColorPalette from '../ColorPalette';
+import {useTheme} from '../theme/ThemeProvider';
 
 const DURATION = 220;
 const DISMISS_DISTANCE = 80;
@@ -30,6 +30,7 @@ const DISMISS_VELOCITY = 0.8;
  */
 const BottomSheet = forwardRef(({height, onClosed, children}, ref) => {
   const insets = useSafeAreaInsets();
+  const {colors} = useTheme();
   const [mounted, setMounted] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const progress = useRef(new Animated.Value(0)).current;
@@ -106,7 +107,8 @@ const BottomSheet = forwardRef(({height, onClosed, children}, ref) => {
 
   return (
     <View style={StyleSheet.absoluteFill}>
-      <Animated.View style={[StyleSheet.absoluteFill, styles.backdrop, {opacity: progress}]}>
+      <Animated.View
+        style={[StyleSheet.absoluteFill, {backgroundColor: colors.BACKDROP, opacity: progress}]}>
         <Pressable style={StyleSheet.absoluteFill} onPress={close} />
       </Animated.View>
       <Animated.View
@@ -114,6 +116,7 @@ const BottomSheet = forwardRef(({height, onClosed, children}, ref) => {
         style={[
           styles.sheet,
           {
+            backgroundColor: colors.SURFACE_RAISED,
             height: sheetHeight,
             bottom: keyboardHeight,
             paddingBottom: bottomPadding,
@@ -127,16 +130,12 @@ const BottomSheet = forwardRef(({height, onClosed, children}, ref) => {
 });
 
 const styles = StyleSheet.create({
-  backdrop: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-  },
   sheet: {
     position: 'absolute',
     left: 0,
     right: 0,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    backgroundColor: ColorPalette.SURFACE_RAISED,
   },
 });
 

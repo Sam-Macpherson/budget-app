@@ -1,6 +1,5 @@
 const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
-
-const defaultConfig = getDefaultConfig(__dirname);
+const {withNativeWind} = require('nativewind/metro');
 
 /**
  * Metro configuration
@@ -8,13 +7,11 @@ const defaultConfig = getDefaultConfig(__dirname);
  *
  * @type {import('@react-native/metro-config').MetroConfig}
  */
-const config = {
-  transformer: {
-    babelTransformerPath: require.resolve('react-native-less-transformer'),
-  },
-  resolver: {
-    sourceExts: [...defaultConfig.resolver.sourceExts, 'less'],
-  },
-};
+const config = {};
 
-module.exports = mergeConfig(defaultConfig, config);
+module.exports = withNativeWind(mergeConfig(getDefaultConfig(__dirname), config), {
+  input: './global.css',
+  // Tailwind's spacing scale assumes a 16px rem; NativeWind defaults to 14.
+  inlineRem: 16,
+  disableTypeScriptGeneration: true,
+});

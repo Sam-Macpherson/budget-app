@@ -5,6 +5,7 @@ const TONES = {
   need: {bg: 'bg-need-tint', fg: 'text-need-text'},
   want: {bg: 'bg-want-tint', fg: 'text-want-text'},
   income: {bg: 'bg-neutral-tint', fg: 'text-need-text'},
+  neutral: {bg: 'bg-raised', fg: 'text-ink'},
 };
 
 const SegmentedToggle = ({options, value, onChange, className = ''}) => (

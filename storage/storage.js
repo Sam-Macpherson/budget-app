@@ -10,6 +10,7 @@ import {
 } from '../Constants';
 import {formatDateDayMedium, formatDateMonth} from '../utils/dates';
 import expensesReducer from './reducers/expensesReducer';
+import roundToTwoDecimals from '../utils/roundToTwoDecimals';
 
 /**
  * Interface to the bare-bones AsyncStorage store.
@@ -164,6 +165,30 @@ class StorageInterface {
   async getEntriesForMonth(date) {
     const monthKey = formatDateMonth(date);
     return store.getObject(monthKey, expensesReducer);
+  }
+
+  /**
+   * Need, want and income totals for `count` months ending with the month of `end`, oldest first.
+   *
+   * @returns {Promise<{month: Date, hasData: boolean, need: number, want: number, income: number}[]>}
+   */
+  async getMonthlyTotals(end, count) {
+    const months = _.range(count - 1, -1, -1).map(i =>
+      moment(end).startOf('month').subtract(i, 'months').toDate(),
+    );
+    return Promise.all(
+      months.map(async month => {
+        const entries = _.flatten(_.values((await store.getObject(formatDateMonth(month))) || {}));
+        const sum = match => roundToTwoDecimals(_.sum(_.map(_.filter(entries, match), 'amount')));
+        return {
+          month,
+          hasData: entries.length > 0,
+          need: sum({type: TYPE_EXPENSE, category: CATEGORY_NEED}),
+          want: sum({type: TYPE_EXPENSE, category: CATEGORY_WANT}),
+          income: sum({type: TYPE_INCOME}),
+        };
+      }),
+    );
   }
 
   /**

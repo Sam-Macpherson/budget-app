@@ -47,6 +47,7 @@ const ICONS = {
   check: <Path d="M5 12.5l4.5 4.5L19 7.5" />,
   menu: <Path d="M4 7h16M4 12h16M4 17h16" />,
   plus: <Path d="M12 5v14M5 12h14" />,
+  chart: <Path d="M4 4.5V19.5h16M7.5 15l3.5-4 3 2.5 5-6" />,
   sun: (
     <>
       <Circle cx="12" cy="12" r="4" />

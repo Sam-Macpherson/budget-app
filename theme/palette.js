@@ -1,6 +1,11 @@
 /**
  * Named colors for each theme. Tailwind classes read these through the CSS variables below (see
  * tailwind.config.js); JS that needs a raw color (SVG icons, navigation) uses useTheme().colors.
+ *
+ * NEED/WANT are one pair used everywhere (chart lines, pills, icons, toggles). Each theme's pair is
+ * stepped apart in lightness - need darker, want lighter - so they stay distinguishable under
+ * red-green color blindness, checked with the dataviz palette validator (CVD ΔE >= 8). *_TEXT are
+ * shades of the same hues that keep that order and meet 4.5:1 on their *_TINT.
  */
 const DARK = {
   BG: '#141414',
@@ -15,19 +20,18 @@ const DARK = {
   TEXT_MUTED: '#9A9A9A',
   TEXT_FAINT: '#6E6E6E',
 
-  NEED: '#228B22',
-  NEED_TEXT: '#7CCB7C',
-  NEED_TINT: 'rgba(34, 139, 34, 0.22)',
+  NEED: '#1D761D',
+  NEED_TEXT: '#6CA66C',
+  NEED_TINT: 'rgba(29, 118, 29, 0.22)',
 
-  WANT: '#FF7600',
-  WANT_TEXT: '#FFA25E',
-  WANT_TINT: 'rgba(255, 118, 0, 0.2)',
+  WANT: '#D9751A',
+  WANT_TEXT: '#EAB381',
+  WANT_TINT: 'rgba(217, 117, 26, 0.22)',
 
   NEUTRAL_TINT: 'rgba(255, 255, 255, 0.08)',
   DANGER: '#E5534B',
 };
 
-// Greens and oranges are darkened for contrast on white.
 const LIGHT = {
   BG: '#F4F4F1',
   SURFACE: '#FFFFFF',
@@ -41,13 +45,13 @@ const LIGHT = {
   TEXT_MUTED: '#6B6B68',
   TEXT_FAINT: '#A3A3A0',
 
-  NEED: '#228B22',
-  NEED_TEXT: '#1F7A1F',
-  NEED_TINT: 'rgba(34, 139, 34, 0.13)',
+  NEED: '#1F7D1F',
+  NEED_TEXT: '#134B13',
+  NEED_TINT: 'rgba(31, 125, 31, 0.13)',
 
   WANT: '#FF7600',
-  WANT_TEXT: '#C05600',
-  WANT_TINT: 'rgba(255, 118, 0, 0.14)',
+  WANT_TEXT: '#A64D00',
+  WANT_TINT: 'rgba(255, 118, 0, 0.13)',
 
   NEUTRAL_TINT: 'rgba(0, 0, 0, 0.06)',
   DANGER: '#D0392F',

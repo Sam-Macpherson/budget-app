@@ -4,6 +4,7 @@ import {DarkTheme, DefaultTheme, NavigationContainer} from '@react-navigation/na
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import DrawerContent from './components/DrawerContent';
 import Icon from './components/Icon';
+import AnalyticsScreen from './screens/AnalyticsScreen';
 import BudgetScreen from './screens/BudgetScreen';
 import RecurringScreen from './screens/RecurringScreen';
 import {useTheme} from './theme/ThemeProvider';
@@ -13,6 +14,7 @@ const Drawer = createDrawerNavigator();
 const renderDrawerContent = props => <DrawerContent {...props} />;
 const BudgetIcon = ({color}) => <Icon name="wallet" color={color} />;
 const RecurringIcon = ({color}) => <Icon name="repeat" color={color} />;
+const AnalyticsIcon = ({color}) => <Icon name="chart" color={color} />;
 
 const App = () => {
   const {scheme, colors} = useTheme();
@@ -52,6 +54,11 @@ const App = () => {
           name="Recurring"
           component={RecurringScreen}
           options={{drawerIcon: RecurringIcon}}
+        />
+        <Drawer.Screen
+          name="Analytics"
+          component={AnalyticsScreen}
+          options={{drawerIcon: AnalyticsIcon}}
         />
       </Drawer.Navigator>
     </NavigationContainer>

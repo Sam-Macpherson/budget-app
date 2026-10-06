@@ -1,5 +1,7 @@
 import _ from 'lodash';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment';
+import {TYPE_EXPENSE, TYPE_INCOME} from '../Constants';
 import {formatDateDayMedium, formatDateMonth} from '../utils/dates';
 import expensesReducer from './reducers/expensesReducer';
 
@@ -34,6 +36,10 @@ class Storage {
     } catch (e) {
       console.log('error reading store value: ', key, e);
     }
+  }
+
+  async getAllKeys() {
+    return AsyncStorage.getAllKeys();
   }
 
   async getObject(key, reducer = undefined) {
@@ -138,7 +144,104 @@ class StorageInterface {
     const monthKey = formatDateMonth(date);
     return store.getObject(monthKey, expensesReducer);
   }
+
+  /**
+   * Serializes every month in the store into a JSON backup string.
+   *
+   * @returns {Promise<string>}
+   */
+  async exportAll() {
+    const keys = _.filter(await store.getAllKeys(), isMonthKey);
+    const months = {};
+    for (const key of keys) {
+      months[key] = await store.getObject(key);
+    }
+    return JSON.stringify({
+      app: BACKUP_APP,
+      version: BACKUP_VERSION,
+      exportedAt: new Date().toISOString(),
+      months,
+    });
+  }
+
+  /**
+   * Parses a backup string produced by exportAll, throwing if it isn't a valid backup.
+   *
+   * @param json {string}
+   * @returns {object} - The month data keyed by month key.
+   */
+  parseBackup(json) {
+    let backup;
+    try {
+      backup = JSON.parse(json);
+    } catch (e) {
+      throw new Error('Not valid JSON.');
+    }
+    if (
+      !_.isPlainObject(backup) ||
+      backup.app !== BACKUP_APP ||
+      backup.version !== BACKUP_VERSION
+    ) {
+      throw new Error('Not a budget app backup.');
+    }
+    if (!_.isPlainObject(backup.months) || !_.every(_.keys(backup.months), isMonthKey)) {
+      throw new Error('Backup has malformed month data.');
+    }
+    _.forEach(backup.months, month => {
+      if (!_.isPlainObject(month)) {
+        throw new Error('Backup has malformed month data.');
+      }
+      _.forEach(month, entries => {
+        if (!_.isArray(entries) || !_.every(entries, isValidEntry)) {
+          throw new Error('Backup has malformed entries.');
+        }
+      });
+    });
+    return backup.months;
+  }
+
+  /**
+   * Merges backup month data into the store. Entries already present (same date) are skipped,
+   * nothing is ever removed.
+   *
+   * @param months {object} - Output of parseBackup.
+   * @returns {Promise<number>} - The number of entries added.
+   */
+  async importMonths(months) {
+    let added = 0;
+    for (const [monthKey, backupMonth] of _.toPairs(months)) {
+      const existingMonth = (await store.getObject(monthKey)) || {};
+      const existingDates = new Set(
+        _.flatMap(_.values(existingMonth), entries => _.map(entries, 'date')),
+      );
+      const newMonth = _.cloneDeep(existingMonth);
+      _.forEach(backupMonth, (entries, dateKey) => {
+        const newEntries = _.reject(entries, e => existingDates.has(e.date));
+        if (_.isEmpty(newEntries)) {
+          return;
+        }
+        added += newEntries.length;
+        newMonth[dateKey] = _.orderBy([...(newMonth[dateKey] || []), ...newEntries], 'date', [
+          'desc',
+        ]);
+      });
+      await store.setObject(monthKey, newMonth);
+    }
+    return added;
+  }
 }
+
+const BACKUP_APP = 'com.budgetapp';
+const BACKUP_VERSION = 1;
+
+const isMonthKey = key => moment(key, 'MMM YYYY', true).isValid();
+
+const isValidEntry = e =>
+  _.isPlainObject(e) &&
+  _.isString(e.date) &&
+  !_.isNaN(Date.parse(e.date)) &&
+  _.includes([TYPE_INCOME, TYPE_EXPENSE], e.type) &&
+  (_.isNumber(e.amount) || _.isNull(e.amount));
 
 const si = new StorageInterface();
 // Singleton interface.

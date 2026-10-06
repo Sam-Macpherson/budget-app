@@ -18,11 +18,13 @@ import si from './storage/storage';
 import {formatDateMonth} from './utils/dates';
 import MonthPicker from 'react-native-month-year-picker';
 import IncomeModal from './components/IncomeModal';
+import BackupModal from './components/BackupModal';
 
 const App = () => {
   const [editingEntry, setEditingEntry] = useState(null);
   const addExpenseModal = useRef(null);
   const addIncomeModal = useRef(null);
+  const backupModal = useRef(null);
   const [viewingMonth, setViewingMonth] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const showPicker = useCallback(value => setShowDatePicker(value), []);
@@ -95,6 +97,7 @@ const App = () => {
           onPress={() => showPicker(true)}
         />
         <View style={footerStyles.buttons}>
+          <Button onPress={() => backupModal.current?.open()} style={typography.largest} text="⋯" />
           <Button
             onPress={() => addIncomeModal.current?.open()}
             style={{marginLeft: 4}}
@@ -118,6 +121,7 @@ const App = () => {
       )}
       <Modal
         ref={addExpenseModal}
+
         style={{height: 150, borderRadius: 8, backgroundColor: ColorPalette.DARK_GRAY}}
         position={'bottom'}
         onClosed={_.partial(setEditingEntry, null)}>
@@ -155,6 +159,12 @@ const App = () => {
             addIncomeModal.current?.close();
           }}
         />
+      </Modal>
+      <Modal
+        ref={backupModal}
+        style={{height: 130, borderRadius: 8, backgroundColor: ColorPalette.DARK_GRAY}}
+        position={'bottom'}>
+        <BackupModal onImported={resetViewingMonth} />
       </Modal>
     </View>
   );

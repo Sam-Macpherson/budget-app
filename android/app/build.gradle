@@ -134,8 +134,8 @@ android {
         applicationId "com.budgetapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.2"
     }
     splits {
         abi {
@@ -151,12 +151,6 @@ android {
             storePassword 'android'
             keyAlias 'androiddebugkey'
             keyPassword 'android'
-        }
-        release {
-            storeFile file('503020.keystore')
-            storePassword RELEASE_STORE_PASSWORD
-            keyAlias "503020"
-            keyPassword RELEASE_KEY_PASSWORD
         }
     }
     buildTypes {

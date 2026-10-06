@@ -2,7 +2,8 @@ import _ from 'lodash';
 import React, {useRef, useState, useEffect, useMemo, useCallback} from 'react';
 import ColorPalette from './ColorPalette';
 
-import {FlatList, StyleSheet, View} from 'react-native';
+import {FlatList, StatusBar, StyleSheet, View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import IncomeHeader from './components/IncomeHeader';
 import {TYPE_EXPENSE, TYPE_INCOME} from './Constants';
@@ -11,7 +12,7 @@ import balanceSheet from './styles/balanceSheet.less';
 import BalanceSheetDate from './components/BalanceSheetDate';
 import Button from './components/Button';
 import footerStyles from './styles/footer.less';
-import Modal from 'react-native-modalbox';
+import BottomSheet from './components/BottomSheet';
 import ExpenseModal from './components/ExpenseModal';
 import si from './storage/storage';
 import {formatDateMonth} from './utils/dates';
@@ -19,7 +20,10 @@ import IncomeModal from './components/IncomeModal';
 import BackupModal from './components/BackupModal';
 import MonthPickerModal from './components/MonthPickerModal';
 
+const SHEET_HEIGHTS = {expense: 280, income: 224, backup: 172, month: 300};
+
 const App = () => {
+  const insets = useSafeAreaInsets();
   const [editingEntry, setEditingEntry] = useState(null);
   const addExpenseModal = useRef(null);
   const addIncomeModal = useRef(null);
@@ -27,13 +31,13 @@ const App = () => {
   const [viewingMonth, setViewingMonth] = useState(new Date());
   const monthPickerModal = useRef(null);
 
-  const [sheetItems, setSheetItems] = useState({});
+  const [sheetItems, setSheetItems] = useState([]);
   // Flat list of all items for the header.
   const allItems = useMemo(() => _.flatten(_.map(sheetItems, 'items')), [sheetItems]);
 
   useEffect(() => {
     si.getEntriesForMonth(viewingMonth).then(entries => {
-      setSheetItems(entries);
+      setSheetItems(entries || []);
     });
   }, [viewingMonth]);
 
@@ -57,7 +61,9 @@ const App = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, {paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16}]}>
+      <StatusBar barStyle="light-content" />
       <IncomeHeader items={allItems} />
       <FlatList
         style={[balanceSheet.balanceSheet]}
@@ -101,10 +107,9 @@ const App = () => {
           />
         </View>
       </View>
-      <Modal
+      <BottomSheet
         ref={addExpenseModal}
-        style={[styles.sheet, styles.expenseSheet]}
-        position={'bottom'}
+        height={SHEET_HEIGHTS.expense}
         onClosed={_.partial(setEditingEntry, null)}>
         <ExpenseModal
           entry={editingEntry}
@@ -120,11 +125,10 @@ const App = () => {
             addExpenseModal.current?.close();
           }}
         />
-      </Modal>
-      <Modal
+      </BottomSheet>
+      <BottomSheet
         ref={addIncomeModal}
-        style={[styles.sheet, styles.incomeSheet]}
-        position={'bottom'}
+        height={SHEET_HEIGHTS.income}
         onClosed={_.partial(setEditingEntry, null)}>
         <IncomeModal
           entry={editingEntry}
@@ -140,11 +144,11 @@ const App = () => {
             addIncomeModal.current?.close();
           }}
         />
-      </Modal>
-      <Modal ref={backupModal} style={[styles.sheet, styles.backupSheet]} position={'bottom'}>
+      </BottomSheet>
+      <BottomSheet ref={backupModal} height={SHEET_HEIGHTS.backup}>
         <BackupModal onImported={resetViewingMonth} />
-      </Modal>
-      <Modal ref={monthPickerModal} style={[styles.sheet, styles.monthSheet]} position={'bottom'}>
+      </BottomSheet>
+      <BottomSheet ref={monthPickerModal} height={SHEET_HEIGHTS.month}>
         <MonthPickerModal
           value={viewingMonth}
           onSelect={date => {
@@ -152,7 +156,7 @@ const App = () => {
             monthPickerModal.current?.close();
           }}
         />
-      </Modal>
+      </BottomSheet>
     </View>
   );
 };
@@ -166,15 +170,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
   },
-  sheet: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: ColorPalette.SURFACE_RAISED,
-  },
-  expenseSheet: {height: 280},
-  incomeSheet: {height: 224},
-  backupSheet: {height: 172},
-  monthSheet: {height: 300},
 });
 
 export default App;
